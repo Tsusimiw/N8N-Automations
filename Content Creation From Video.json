@@ -1,0 +1,877 @@
+{
+  "name": "Content Creation From Video",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "14FRYOZEyt5_Bujj3kHoNqVs7wx4JAeKa",
+          "mode": "list",
+          "cachedResultName": "Content Uploads",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/14FRYOZEyt5_Bujj3kHoNqVs7wx4JAeKa"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -432,
+        -304
+      ],
+      "id": "89c8e57d-53a0-4358-8a77-f84da18a7937",
+      "name": "Google Drive Trigger",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "VleBZkmbGr9ZqYAk",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -192,
+        -304
+      ],
+      "id": "e10437f0-3bf4-4bf0-a1cc-8810f7cccf33",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "VleBZkmbGr9ZqYAk",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "n8n-transcribe-bucket",
+        "fileName": "={{ $json.name }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.awsS3",
+      "typeVersion": 2,
+      "position": [
+        16,
+        -384
+      ],
+      "id": "905e8c71-d4fe-475f-a55e-91211c5d1b1f",
+      "name": "Upload a file",
+      "credentials": {
+        "aws": {
+          "id": "FpzII9hlpTha0Fi8",
+          "name": "AWS account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "transcriptionJobName": "={{ $json.Key }}",
+        "mediaFileUri": "=s3://{{$node[\"AWS S3\"].parameter[\"bucketName\"]}}/{{ $json.Key }}",
+        "detectLanguage": true,
+        "options": {}
+      },
+      "name": "AWS Transcribe",
+      "type": "n8n-nodes-base.awsTranscribe",
+      "position": [
+        384,
+        -512
+      ],
+      "typeVersion": 1,
+      "id": "78fb6131-ce2b-4f30-a973-e5fcdbc0e5c2",
+      "credentials": {
+        "aws": {
+          "id": "FpzII9hlpTha0Fi8",
+          "name": "AWS account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "bucketName": "n8n-transcribe-bucket",
+        "returnAll": true,
+        "options": {}
+      },
+      "name": "AWS S3",
+      "type": "n8n-nodes-base.awsS3",
+      "position": [
+        192,
+        -304
+      ],
+      "typeVersion": 1,
+      "id": "0ebacb0f-1c21-4696-a956-6632278fbf19",
+      "credentials": {
+        "aws": {
+          "id": "FpzII9hlpTha0Fi8",
+          "name": "AWS account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "transcriptionJobName": "={{ $('AWS Transcribe').item.json.TranscriptionJobName }}"
+      },
+      "name": "AWS Transcribe 2",
+      "type": "n8n-nodes-base.awsTranscribe",
+      "position": [
+        752,
+        -304
+      ],
+      "typeVersion": 1,
+      "id": "9493fb36-5fea-4b35-ab43-878ed6f4d214",
+      "credentials": {
+        "aws": {
+          "id": "FpzII9hlpTha0Fi8",
+          "name": "AWS account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "responseMode": "lastNode",
+        "limitWaitTime": true,
+        "resumeAmount": 5,
+        "resumeUnit": "minutes",
+        "options": {
+          "responsePropertyName": "transcript"
+        }
+      },
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        560,
+        -304
+      ],
+      "webhookId": "12345",
+      "typeVersion": 1,
+      "id": "de6a1d72-38b8-40db-82e6-e1677b41fd82"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "n8n-transcribe-bucket",
+        "fileKey": "={{ $('AWS S3').item.json.Key }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.awsS3",
+      "typeVersion": 2,
+      "position": [
+        1152,
+        -368
+      ],
+      "id": "d5ae2af2-4e48-4b83-9c39-6db70ff5d9ba",
+      "name": "Delete a file",
+      "credentials": {
+        "aws": {
+          "id": "FpzII9hlpTha0Fi8",
+          "name": "AWS account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "deleteFile",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Google Drive Trigger').item.json.webViewLink }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1520,
+        -544
+      ],
+      "id": "39b961f7-f36c-48d7-9170-280c20bdf311",
+      "name": "Delete a file1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "VleBZkmbGr9ZqYAk",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-chat-latest",
+          "mode": "list",
+          "cachedResultName": "gpt-5-chat-latest"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        432,
+        176
+      ],
+      "id": "32164b47-5202-430a-af1c-c6e6ed2abb23",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "gFTUWmP22pqm58Ku",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "transcriptionJobName": "={{ $('AWS S3').item.json.Key }}"
+      },
+      "type": "n8n-nodes-base.awsTranscribe",
+      "typeVersion": 1,
+      "position": [
+        1312,
+        -480
+      ],
+      "id": "3174965b-8f77-45d9-a765-05830e7e10b4",
+      "name": "Delete transcriptionJob",
+      "credentials": {
+        "aws": {
+          "id": "FpzII9hlpTha0Fi8",
+          "name": "AWS account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1FcHGZrDVaYZZ54hevntOBhX-FQAIVgZokOtW95F1WFU",
+          "mode": "list",
+          "cachedResultName": "Automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FcHGZrDVaYZZ54hevntOBhX-FQAIVgZokOtW95F1WFU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1373237444,
+          "mode": "list",
+          "cachedResultName": "Transcirbed",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FcHGZrDVaYZZ54hevntOBhX-FQAIVgZokOtW95F1WFU/edit#gid=1373237444"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Transcript": "={{ $json.transcript }}"
+          },
+          "matchingColumns": [
+            "Transcript"
+          ],
+          "schema": [
+            {
+              "id": "Transcript",
+              "displayName": "Transcript",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        944,
+        -304
+      ],
+      "id": "a93d4413-b7cb-473c-b5b4-100238df8e50",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "iUqfqDgiRLF7DLNe",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1FcHGZrDVaYZZ54hevntOBhX-FQAIVgZokOtW95F1WFU",
+          "mode": "list",
+          "cachedResultName": "Automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FcHGZrDVaYZZ54hevntOBhX-FQAIVgZokOtW95F1WFU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1373237444,
+          "mode": "list",
+          "cachedResultName": "Transcirbed",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FcHGZrDVaYZZ54hevntOBhX-FQAIVgZokOtW95F1WFU/edit#gid=1373237444"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Transcript": "={{ $('Append or update row in sheet').item.json.Transcript }}"
+          },
+          "matchingColumns": [
+            "Transcript"
+          ],
+          "schema": [
+            {
+              "id": "Transcript",
+              "displayName": "Transcript",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1680,
+        -272
+      ],
+      "id": "7113563b-871b-4204-bd9e-05084cbe917e",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "iUqfqDgiRLF7DLNe",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1FcHGZrDVaYZZ54hevntOBhX-FQAIVgZokOtW95F1WFU",
+          "mode": "list",
+          "cachedResultName": "Automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FcHGZrDVaYZZ54hevntOBhX-FQAIVgZokOtW95F1WFU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "BLOG",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FcHGZrDVaYZZ54hevntOBhX-FQAIVgZokOtW95F1WFU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "BLOG POST": "={{ $('Blog Post').item.json.output }}"
+          },
+          "matchingColumns": [
+            "BLOG POST"
+          ],
+          "schema": [
+            {
+              "id": "BLOG POST",
+              "displayName": "BLOG POST",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        768,
+        176
+      ],
+      "id": "d2e2b2ee-4e80-4a01-9a0a-f4df5328046b",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "iUqfqDgiRLF7DLNe",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1FcHGZrDVaYZZ54hevntOBhX-FQAIVgZokOtW95F1WFU",
+          "mode": "list",
+          "cachedResultName": "Automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FcHGZrDVaYZZ54hevntOBhX-FQAIVgZokOtW95F1WFU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 857014450,
+          "mode": "list",
+          "cachedResultName": "NEWSLETTER",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FcHGZrDVaYZZ54hevntOBhX-FQAIVgZokOtW95F1WFU/edit#gid=857014450"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "NEWSLETTER": "={{ $('Newsletter').item.json.message.content }}"
+          },
+          "matchingColumns": [
+            "NEWSLETTER"
+          ],
+          "schema": [
+            {
+              "id": "NEWSLETTER",
+              "displayName": "NEWSLETTER",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1152,
+        272
+      ],
+      "id": "a4803b25-c913-44a9-9f16-651af262841a",
+      "name": "Append or update row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "iUqfqDgiRLF7DLNe",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1FcHGZrDVaYZZ54hevntOBhX-FQAIVgZokOtW95F1WFU",
+          "mode": "list",
+          "cachedResultName": "Automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FcHGZrDVaYZZ54hevntOBhX-FQAIVgZokOtW95F1WFU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 404547895,
+          "mode": "list",
+          "cachedResultName": "Content Calendar",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FcHGZrDVaYZZ54hevntOBhX-FQAIVgZokOtW95F1WFU/edit#gid=404547895"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Content Calendar": "={{ $json.message.content }}"
+          },
+          "matchingColumns": [
+            "Content Calendar"
+          ],
+          "schema": [
+            {
+              "id": "Content Calendar",
+              "displayName": "Content Calendar",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1712,
+        224
+      ],
+      "id": "72eee745-3726-4c5f-9f07-5f843a9738be",
+      "name": "Append or update row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "iUqfqDgiRLF7DLNe",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=I want you to review this file from a transcript and get the hooks and great ideas  to create a full blog post that is already ready for posting. {{ $json.Transcript }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        464,
+        -32
+      ],
+      "id": "05819a67-a581-4982-b9cb-99aee9896df8",
+      "name": "Blog Post"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5",
+          "mode": "list",
+          "cachedResultName": "GPT-5"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=I want you to make me a newsletter, just plain newsletter with this content that is already ready to be posted {{ $json['BLOG POST'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        928,
+        -32
+      ],
+      "id": "910fa5b4-a09c-45b1-845a-e626f2a7cf57",
+      "name": "Newsletter",
+      "credentials": {
+        "openAiApi": {
+          "id": "gFTUWmP22pqm58Ku",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5",
+          "mode": "list",
+          "cachedResultName": "GPT-5"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Create me a 30 day content Calendar Base on this Transcription that will be ready to be posted {{ $('Append or update row in sheet').item.json.Transcript }}"
+            },
+            {
+              "content": "=From now on, respond to every content request as if you are me — Jeremy Debarros. Write in my exact voice: direct, strategic, practical, and clear. No fluff. No filler. Prioritize ROI, action, and speed.\n\nFollow these rules every time:\n\nKeep sentences short to mid-length\n\nUse confident, expert tone\n\nMake the content copy/paste-ready — no polish needed\n\nUse clear formatting (headings, bold keywords, short paragraphs, lists if helpful)\n\nAlways think: “Would Jeremy say this? Is this useful? Does it move fast?”\n\nOnly create content that sounds like it came from a sales director who teaches, leads, and moves with intention.\n\n------",
+              "role": "system"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1360,
+        -32
+      ],
+      "id": "11a6e4b7-0a5e-43e1-a65d-ef983a9f95ba",
+      "name": "Content Calendar",
+      "credentials": {
+        "openAiApi": {
+          "id": "gFTUWmP22pqm58Ku",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Upload a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload a file": {
+      "main": [
+        [
+          {
+            "node": "AWS S3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AWS S3": {
+      "main": [
+        [
+          {
+            "node": "AWS Transcribe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AWS Transcribe": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "AWS Transcribe 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AWS Transcribe 2": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a file": {
+      "main": [
+        [
+          {
+            "node": "Delete transcriptionJob",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Blog Post",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a file1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete transcriptionJob": {
+      "main": [
+        [
+          {
+            "node": "Delete a file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Delete a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Blog Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Newsletter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Content Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Blog Post": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Newsletter": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Calendar": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e42ac722-ca85-4020-a4bc-fa3f050f61f8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bfdc66ec7b599c93d49569ec0242ebb439092557e2d439ccacaaa15735b254fb"
+  },
+  "id": "0G2lY01xcsLURcWU",
+  "tags": []
+}
