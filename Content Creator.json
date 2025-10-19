@@ -1,0 +1,846 @@
+{
+  "name": "Content Creator",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "eff28505-c438-4c44-8db4-188797b1e5f3",
+              "name": "content",
+              "type": "string",
+              "value": "={{ $('create_outline').item.json.message.content }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c76ab21a-94d3-4c52-8871-8be5a55b24de",
+      "name": "input_brief",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -3856,
+        368
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dda6ee09-0629-4ebc-a4cf-80ebe0172dee",
+              "name": "content",
+              "type": "array",
+              "value": "={{ $json.content.split(/(?:\\r?\\n){2}## /) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6e61425a-2e8e-438c-ab03-4a85a1a418a2",
+      "name": "new_lines",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -3632,
+        368
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4b2dbae1-2e78-46f4-8be7-6240abf5c1d6",
+              "name": "content",
+              "type": "string",
+              "value": "={{ $json.content.replace($json.content,$json.content+\"⟵\") }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fe8bf691-b1d2-4d25-979a-d77bc024ee60",
+      "name": "input_sections",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -2960,
+        464
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1bc2b4fc-7cc9-4aea-b733-5d062b3ee648",
+              "name": "message",
+              "type": "string",
+              "value": "={{ $json.message.content }}"
+            },
+            {
+              "id": "3f599644-8c86-46c6-8048-1166cced462a",
+              "name": "idx",
+              "type": "number",
+              "value": "={{ $('section_paragraphs').item.pairedItem.item }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "362bd5ed-310c-4ace-8219-73003c2f6148",
+      "name": "section_text",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -2336,
+        464
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {},
+      "id": "7d8a8257-08c2-47f7-89a9-4ecf38db04d6",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        -1264,
+        464
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "idx"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6eb84857-82ea-46e5-af62-ef8a4ed808b8",
+      "name": "Sort",
+      "type": "n8n-nodes-base.sort",
+      "position": [
+        -1040,
+        464
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "message"
+            }
+          ]
+        },
+        "options": {
+          "mergeLists": true
+        }
+      },
+      "id": "99a68253-faa2-4fbe-ab74-e21e1a6ad778",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        -368,
+        368
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f410b139-0e21-41ed-9848-260e4bf7cf33",
+              "name": "article",
+              "type": "string",
+              "value": "={{ $json.message.join() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "aa2b50b7-5beb-406e-9310-f2610e8d3516",
+      "name": "final_article",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -144,
+        368
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "21f3dd4b-db14-472b-94b6-7165206f94e7",
+              "name": "message",
+              "type": "string",
+              "value": "={{ $json.content+\"\\n\\n\" }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "13138053-bb2f-4368-bac1-02c817f82e4a",
+      "name": "set_introduction",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -816,
+        224
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {},
+      "id": "0b558551-0e47-4d55-bce6-74fdc910a67f",
+      "name": "Merge1",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        -544,
+        384
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "message.content",
+        "options": {}
+      },
+      "id": "45d504ee-02e6-41b1-8397-71095e1b1469",
+      "name": "markdown_to_file",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        -4304,
+        368
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "content",
+        "options": {}
+      },
+      "id": "4e95614b-f886-4b2a-8770-8f0b494c247b",
+      "name": "split_out",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -3408,
+        368
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "3a8dc0bb-2bcf-416d-b28e-360a1173042c",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              },
+              "leftValue": "={{ $json.content }}",
+              "rightValue": "#"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6ce7478c-3043-4bf2-adda-ff02a423198a",
+      "name": "section_starts_with_#",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -2960,
+        208
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "71cd7f94-f30d-4eb5-8c31-a0674ef3ffc9",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              },
+              "leftValue": "={{ Math.ceil($('section_paragraphs').all().length * 0.25) }}",
+              "rightValue": "={{ $json.idx }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fa847799-c3ee-4a73-beb5-aa29e35bd98e",
+      "name": "25_percent_chance",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -2112,
+        464
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "071e977f-6534-4635-a2a5-9178709bdfc9",
+              "name": "message",
+              "type": "string",
+              "value": "={{ $json.message.content }}"
+            },
+            {
+              "id": "b1678132-2e98-4fc2-b303-7e89083c287e",
+              "name": "=idx",
+              "type": "number",
+              "value": "={{ Math.ceil($('section_paragraphs').all().length * 0.25) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7bd36318-dc85-477a-81cf-f0b2bffb1609",
+      "name": "set_section_content",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1488,
+        400
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "jsCode": "// Create an array to hold the rearranged items\nconst rearrangedItems = [];\n\n// Loop over input items and push each message into the rearrangedItems array\nfor (const item of $input.all()) {\n  rearrangedItems[item.json.idx] = {\n    json: {\n      message: item.json.message + '\\n\\n' // Add two new lines at the end of each message\n    }\n  };\n}\n\n// Return the rearranged items\nreturn rearrangedItems.filter(Boolean); // Filter out any undefined entries\n"
+      },
+      "id": "f75586e1-81ad-445e-93c1-67117c2ee9fd",
+      "name": "add_2_new_lines",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -816,
+        464
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "article",
+        "binaryPropertyName": "final_article",
+        "options": {}
+      },
+      "id": "2d395f1b-7b1a-4e10-a290-41dc27f6b868",
+      "name": "final_article_file",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        80,
+        368
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "final_article",
+        "name": "={{ $('On form submission').item.json.Title }} {{ $('On form submission').item.json.Date }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "https://drive.google.com/drive/folders/1qpZcl9Jc4e6lXRsOtr5SwrLKxaJiqATL",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "id": "c78a780f-8568-4374-946f-1c6f20b1c847",
+      "name": "upload_fiinalArticle",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        304,
+        304
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "VleBZkmbGr9ZqYAk",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "=Unfurnished",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "https://drive.google.com/drive/folders/15nNqjQwJ-8enQ52nksGB-bhaFy7IJg0v",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "id": "be94dea5-f1d4-4f23-b94c-0916ec3f7465",
+      "name": "upload_outline_file",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -4080,
+        368
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "VleBZkmbGr9ZqYAk",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=From now on, respond to every content request as if you are me — Jeremy Debarros. Write in my exact voice: direct, strategic, practical, and clear. No fluff. No filler. Prioritize ROI, action, and speed.\n\nFollow these rules every time:\n\nKeep sentences short to mid-length\n\nUse confident, expert tone\n\nMake the content copy/paste-ready — no polish needed\n\nUse clear formatting (headings, bold keywords, short paragraphs, lists if helpful)\n\nAlways think: “Would Jeremy say this? Is this useful? Does it move fast?”\n\nOnly create content that sounds like it came from a sales director who teaches, leads, and moves with intention.\n\n------\n\n{{ $json.content }}",
+              "role": "system"
+            },
+            {
+              "content": "=base on the {{ $json.content }} I want you to recreate his SEO and social media post for me\n------\n\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5060f695-d632-4131-ac2f-10c9a5a37e77",
+      "name": "section_paragraphs",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -2736,
+        464
+      ],
+      "typeVersion": 1.5,
+      "credentials": {
+        "openAiApi": {
+          "id": "gFTUWmP22pqm58Ku",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=From now on, respond to every content request as if you are me — Jeremy Debarros. Write in my exact voice: direct, strategic, practical, and clear. No fluff. No filler. Prioritize ROI, action, and speed.\n\nFollow these rules every time:\n\nKeep sentences short to mid-length\n\nUse confident, expert tone\n\nMake the content copy/paste-ready — no polish needed\n\nUse clear formatting (headings, bold keywords, short paragraphs, lists if helpful)\n\nAlways think: “Would Jeremy say this? Is this useful? Does it move fast?”\n\nOnly create content that sounds like it came from a sales director who teaches, leads, and moves with intention.\n\n------\n\n{{ $json.content }}",
+              "role": "system"
+            },
+            {
+              "content": "=Edit the following text to break up the flow. Add bullet points and subheadings where needed for variety. Use Markdown(atx) format."
+            },
+            {
+              "content": "=# Making use of AI Writing Tools\n\nIncorporating AI into your writing workflow requires a strong understanding of the available tools and how they can boost your productivity. Whether you're a novel writer looking to streamline your plot development process or a content marketer aiming to optimize your SEO, below are a few of the hottest AI tools you can use to improve your productivity.\n\n## AI Writing Tools\n\nAmong the most versatile is ChatGPT, designed by OpenAI. This tool is designed to assist with:\n\n- Content generation,\n- Ideation,\n- Automatic formatting, &\n- Translation\n\nThanks to its machine learning capabilities, the quality of the content it helps you generate even improves over time based on your input and feedback.\n\n## AI Editing Tools\n\nFor those primarily concerned with editing and proofreading, on the other hand, here are a few high-quality tools you can use to skip the QA.\n\n- Grammarly,\n- ProWritingAid\n\nUsing natural language processing, these tools instantly assess your writing for grammatical errors, stylistic issues, and clarity improvements. Both Grammarly and ProWritingAid provide suggestions in real-time, allowing you to refine your writing quickly and efficiently. They also offer detailed reports that help you understand patterns in your writing and areas for improvement.\n"
+            },
+            {
+              "content": "=# Making use of AI Writing Tools\n\nIncorporating AI into your writing workflow requires a strong understanding of the available tools and how they can boost your productivity. Whether you're a novel writer looking to streamline your plot development process or a content marketer aiming to optimize your SEO, below are a few of the hottest AI tools you can use to improve your productivity.\n\n## AI Writing Tools\n\nAmong the most versatile is ChatGPT, designed by OpenAI. This tool is designed to assist with:\n\n- Content generation,\n- Ideation,\n- Automatic formatting, &\n- Translation\n\nThanks to its machine learning capabilities, the quality of the content it helps you generate even improves over time based on your input and feedback.\n\n## AI Editing Tools\n\nFor those primarily concerned with editing and proofreading, on the other hand, here are a few high-quality tools you can use to skip the QA.\n\n- Grammarly,\n- ProWritingAid\n\nUsing natural language processing, these tools instantly assess your writing for grammatical errors, stylistic issues, and clarity improvements. Both Grammarly and ProWritingAid provide suggestions in real-time, allowing you to refine your writing quickly and efficiently. They also offer detailed reports that help you understand patterns in your writing and areas for improvement.\n",
+              "role": "assistant"
+            },
+            {
+              "content": "={{ $json.message }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c5a70af7-b414-49b9-80d6-2ad9f68f6bdc",
+      "name": "change_section_format",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -1888,
+        400
+      ],
+      "typeVersion": 1.5,
+      "credentials": {
+        "openAiApi": {
+          "id": "gFTUWmP22pqm58Ku",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-chat-latest",
+          "mode": "list",
+          "cachedResultName": "GPT-5-CHAT-LATEST"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $json.Prompt }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "be6e7fd4-e8f3-4ad2-b12c-d5d870bfdd00",
+      "name": "create_outline",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        -4704,
+        368
+      ],
+      "typeVersion": 1.5,
+      "credentials": {
+        "openAiApi": {
+          "id": "gFTUWmP22pqm58Ku",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "Prompt Generator",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Prompt"
+            },
+            {
+              "fieldLabel": "Title"
+            },
+            {
+              "fieldLabel": "Date"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -4928,
+        304
+      ],
+      "id": "d542ad18-e704-4bd5-abe9-f67e04ddc46c",
+      "name": "On form submission",
+      "webhookId": "62fdd526-19a0-43f2-8bc3-c4d4ffbc31a9"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Sort": {
+      "main": [
+        [
+          {
+            "node": "add_2_new_lines",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Sort",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "final_article",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "new_lines": {
+      "main": [
+        [
+          {
+            "node": "split_out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_out": {
+      "main": [
+        [
+          {
+            "node": "section_starts_with_#",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "input_brief": {
+      "main": [
+        [
+          {
+            "node": "new_lines",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "section_text": {
+      "main": [
+        [
+          {
+            "node": "25_percent_chance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "final_article": {
+      "main": [
+        [
+          {
+            "node": "final_article_file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "input_sections": {
+      "main": [
+        [
+          {
+            "node": "section_paragraphs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "add_2_new_lines": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "markdown_to_file": {
+      "main": [
+        [
+          {
+            "node": "upload_outline_file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_introduction": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "25_percent_chance": {
+      "main": [
+        [
+          {
+            "node": "change_section_format",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "final_article_file": {
+      "main": [
+        [
+          {
+            "node": "upload_fiinalArticle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "section_paragraphs": {
+      "main": [
+        [
+          {
+            "node": "section_text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_section_content": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "upload_outline_file": {
+      "main": [
+        [
+          {
+            "node": "input_brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "upload_fiinalArticle": {
+      "main": [
+        []
+      ]
+    },
+    "change_section_format": {
+      "main": [
+        [
+          {
+            "node": "set_section_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "section_starts_with_#": {
+      "main": [
+        [
+          {
+            "node": "set_introduction",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "input_sections",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create_outline": {
+      "main": [
+        [
+          {
+            "node": "markdown_to_file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "create_outline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "65a4f323-2148-44cb-b8d3-4744a84d0f34",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bfdc66ec7b599c93d49569ec0242ebb439092557e2d439ccacaaa15735b254fb"
+  },
+  "id": "ZJL1lcOueq1ffcej",
+  "tags": []
+}
