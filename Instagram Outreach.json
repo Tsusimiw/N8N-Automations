@@ -1,0 +1,303 @@
+{
+  "name": "Instagram Outreach",
+  "nodes": [
+    {
+      "parameters": {
+        "actorSource": "store",
+        "actorId": {
+          "__rl": true,
+          "value": "p62lhFXUaUqnecvHi",
+          "mode": "list",
+          "cachedResultName": "Instagram DMs Automation (aizen0/instagram-dms-automation)",
+          "cachedResultUrl": "https://console.apify.com/actors/p62lhFXUaUqnecvHi/input"
+        },
+        "customBody": "={\n  \"sessionid\": \"4573134516%3AoP2ohp4XxbUMjy%3A25%3AAYhWczHVBDJffPLH6_1mS9HUzEbJN_C0OgzGbGgL_w\",\n  \"target_usernames\": [\"{{ $json.Username }}\"],\n  \"message\": \"{{ $json.Message }}\",\n  \"delay_between_messages\": 45,\n  \"proxy\": {\n    \"useApifyProxy\": true,\n    \"apifyProxyGroups\": [\"RESIDENTIAL\"]\n  },\n  \"max_users\": 100\n}",
+        "timeout": {}
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        352,
+        -32
+      ],
+      "id": "9cf6bdea-e907-4c23-9d64-39295724aacd",
+      "name": "Run an Actor",
+      "credentials": {
+        "apifyApi": {
+          "id": "Jd7WBmFouA3jTypW",
+          "name": "Apify account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "formTitle": "Instagram Outreach",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Username",
+              "placeholder": "tsusumiw"
+            },
+            {
+              "fieldLabel": "Message",
+              "placeholder": "Hi Put a message here"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        208,
+        -32
+      ],
+      "id": "8d0820f6-645c-4c9c-b029-f1a7792178ac",
+      "name": "On form submission",
+      "webhookId": "018bce4b-57b0-400a-a5e4-055b44b5301b",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "actorSource": "store",
+        "actorId": {
+          "__rl": true,
+          "value": "p62lhFXUaUqnecvHi",
+          "mode": "list",
+          "cachedResultName": "Instagram DMs Automation (aizen0/instagram-dms-automation)",
+          "cachedResultUrl": "https://console.apify.com/actors/p62lhFXUaUqnecvHi/input"
+        },
+        "customBody": "={\n  \"sessionid\": \"4573134516%3AoP2ohp4XxbUMjy%3A25%3AAYhWczHVBDJffPLH6_1mS9HUzEbJN_C0OgzGbGgL_w\",\n  \"target_usernames\": [\"{{ $json['Instagram Username'] }}\"],\n  \"message\": \"{{ $json.Message }}\",\n  \"delay_between_messages\": 45,\n  \"proxy\": {\n    \"useApifyProxy\": true,\n    \"apifyProxyGroups\": [\"RESIDENTIAL\"]\n  },\n  \"max_users\": 100\n}"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        576,
+        160
+      ],
+      "id": "860697f2-dc26-4b23-bdd6-bd1a76bdb09d",
+      "name": "Run an Actor1",
+      "credentials": {
+        "apifyApi": {
+          "id": "Jd7WBmFouA3jTypW",
+          "name": "Apify account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        416,
+        160
+      ],
+      "id": "5316f7ef-b165-402b-9700-eb8374dabe94",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1f-_HQeMNKUbA8LnUCvicaWHUmo8biDxxbyMhU8WIMtU",
+          "mode": "list",
+          "cachedResultName": "Instagram OutReach Automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1f-_HQeMNKUbA8LnUCvicaWHUmo8biDxxbyMhU8WIMtU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Instagram Username",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1f-_HQeMNKUbA8LnUCvicaWHUmo8biDxxbyMhU8WIMtU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Sent": "SENT",
+            "Instagram Username": "={{ $('Get row(s) in sheet').item.json['Instagram Username'] }}"
+          },
+          "matchingColumns": [
+            "Instagram Username"
+          ],
+          "schema": [
+            {
+              "id": "Instagram Username",
+              "displayName": "Instagram Username",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sent",
+              "displayName": "Sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        736,
+        160
+      ],
+      "id": "71193c7c-a528-4d6a-8494-b369567947ac",
+      "name": "Append or update row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "iUqfqDgiRLF7DLNe",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        96,
+        160
+      ],
+      "id": "22c4dd9e-c1f8-4d27-bffb-e66155b901fc",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1f-_HQeMNKUbA8LnUCvicaWHUmo8biDxxbyMhU8WIMtU",
+          "mode": "list",
+          "cachedResultName": "Instagram OutReach Automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1f-_HQeMNKUbA8LnUCvicaWHUmo8biDxxbyMhU8WIMtU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Instagram Username",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1f-_HQeMNKUbA8LnUCvicaWHUmo8biDxxbyMhU8WIMtU/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Sent"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        256,
+        160
+      ],
+      "id": "fdfc442b-650d-462c-bb39-078d6b05c86b",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "iUqfqDgiRLF7DLNe",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Run an Actor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run an Actor1": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Run an Actor1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9ee567d4-b443-4de8-9253-0c75d07931db",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bfdc66ec7b599c93d49569ec0242ebb439092557e2d439ccacaaa15735b254fb"
+  },
+  "id": "z14jiro0pIB9Efg0",
+  "tags": []
+}
