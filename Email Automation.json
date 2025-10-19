@@ -1,0 +1,462 @@
+{
+  "name": "Email Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const encoded = Buffer.from($json.raw).toString('base64');\n\nreturn { encoded };"
+      },
+      "id": "847144d6-511d-4af7-959e-d9e6a1684b65",
+      "name": "Convert raw to base64",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -864,
+        -16
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/gmail/v1/users/me/drafts",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "gmailOAuth2",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"message\":{\"raw\":\"{{ $json.encoded }}\", \"threadId\": \"{{ $('Map fields for further processing').item.json[\"threadId\"] }}\"}}",
+        "options": {}
+      },
+      "id": "0001fb9c-8d40-4990-a268-795d3b521a10",
+      "name": "Add email draft to thread",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -608,
+        -16
+      ],
+      "typeVersion": 4.1,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TG1di2WYQyBxsOON",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "thread",
+        "operation": "removeLabels",
+        "threadId": "={{ $('Map fields for further processing').item.json[\"threadId\"] }}",
+        "labelIds": [
+          "INBOX"
+        ]
+      },
+      "id": "acd5c41e-fa65-4184-b2d9-31ef3af6c3bd",
+      "name": "Remove AI label from email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        -368,
+        -16
+      ],
+      "typeVersion": 2.1,
+      "webhookId": "a47761a5-1f73-4782-8bf8-57e6aebc8222",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TG1di2WYQyBxsOON",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a77b2d79-1e70-410c-a657-f3d618154ea1",
+              "name": "response",
+              "type": "string",
+              "value": "={{ $json.message.content }}"
+            },
+            {
+              "id": "20850cac-f82c-4f02-84f0-3de31871a5b8",
+              "name": "threadId",
+              "type": "string",
+              "value": "={{ $('Get single message content').item.json[\"threadId\"] }}"
+            },
+            {
+              "id": "d270c18e-39a0-4d87-85f0-cc1ffc9c10ff",
+              "name": "to",
+              "type": "string",
+              "value": "={{ $('Get single message content').item.json[\"from\"][\"text\"] }}"
+            },
+            {
+              "id": "30acb50b-bdde-44bf-803c-76e0ae65f526",
+              "name": "subject",
+              "type": "string",
+              "value": "={{ $('Get single message content').item.json[\"subject\"] }}"
+            },
+            {
+              "id": "88914536-8c25-4877-8914-feab5e32fae3",
+              "name": "messageId",
+              "type": "string",
+              "value": "={{ $('Get threads with specific labels').item.json[\"id\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "62c334c5-b336-4863-b7d5-def70e8e7eea",
+      "name": "Map fields for further processing",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1680,
+        0
+      ],
+      "typeVersion": 3.3
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ $json.response }}",
+        "destinationKey": "response",
+        "options": {
+          "simpleLineBreaks": false
+        }
+      },
+      "id": "48969c21-d503-4a26-86d7-f81541e05f47",
+      "name": "Convert response to HTML",
+      "type": "n8n-nodes-base.markdown",
+      "position": [
+        -1328,
+        -16
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "913e9cb1-10de-4637-bf48-40272c7c7fe3",
+              "name": "raw",
+              "type": "string",
+              "value": "=To: {{ $json.to }}\nSubject: {{ $json.subject }}\nContent-Type: text/html; charset=\"utf-8\"\n\n{{ $json.response }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a00d8c7f-4301-4214-850f-904adc6c2420",
+      "name": "Build email raw",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1088,
+        -16
+      ],
+      "typeVersion": 3.3
+    },
+    {
+      "parameters": {
+        "resource": "thread",
+        "limit": 5,
+        "filters": {}
+      },
+      "id": "c5d4af1d-33ef-47fc-b7ce-cdfc398b3a2f",
+      "name": "Get threads with specific labels",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        -3216,
+        -16
+      ],
+      "typeVersion": 2.1,
+      "webhookId": "75010c0c-d2b8-44fa-b66a-e30d3890aa9a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TG1di2WYQyBxsOON",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "1422697e-7cc8-4a83-bdba-a6d8d1fe04f7",
+      "name": "Loop over threads",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -2960,
+        -16
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "resource": "thread",
+        "operation": "get",
+        "threadId": "={{ $json.id }}",
+        "options": {
+          "returnOnlyMessages": true
+        }
+      },
+      "id": "6ee08954-418f-494c-84e8-8c022ad605a5",
+      "name": "Get thread messages",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        -2704,
+        208
+      ],
+      "typeVersion": 2.1,
+      "webhookId": "94acfffd-c26c-4a49-ae37-118ca0b9d039",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TG1di2WYQyBxsOON",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "keep": "lastItems"
+      },
+      "id": "5fca325a-2a43-43d4-8ed4-00b45c38b955",
+      "name": "Return last message in thread",
+      "type": "n8n-nodes-base.limit",
+      "position": [
+        -2480,
+        224
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $json.id }}",
+        "simple": false,
+        "options": {}
+      },
+      "id": "f60c4f8c-4ae9-41db-ac21-e7f7f8a253bd",
+      "name": "Get single message content",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        -2688,
+        -144
+      ],
+      "typeVersion": 2.1,
+      "webhookId": "21d6cac2-aee0-4f01-a3ce-98526f4b222e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TG1di2WYQyBxsOON",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "id": "0f15c350-43f6-4073-9797-b1995455defe",
+      "name": "Schedule trigger (1 hour)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -3440,
+        -16
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "chatgpt-4o-latest",
+          "mode": "list",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are writing as Jeremy Debarros, National Sales Director at Kaerwell. Every response must reflect Jeremy’s tone, thinking, and communication style. The goal is to respond with clarity, confidence, and strategic direction—no filler, no fluff.\n\nTONE & STYLE\n\nDirect, strategic, and practical\n\nConversational but not casual\n\nConfident, clear, occasionally witty\n\nNo corporate jargon, softening language, or unnecessary politeness\n\nSpeak like a strategist laying out next steps\n\nSENTENCE STRUCTURE\n\nShort to medium length\n\nNo rambling\n\nPrioritize clarity and flow\n\nAvoid overexplaining\n\nPREFERRED OPENERS\nRotate these to match tone:\n\nGot it. Here’s what you need to know.\n\nHere’s what I recommend.\n\nHere’s the bottom line.\n\nPREFERRED CLOSERS\nRotate these based on context:\n\nLet me know what you decide.\n\nCircle back if anything’s unclear.\n\nKeep me posted.\n\nDo not use: “Onward” or “Thanks again”\n\nRESPONSE STRUCTURE\n\nAcknowledge briefly (only if needed):\n“Got it.” or “Saw this.” is sufficient.\n\nAnswer directly — no soft intro, no small talk.\n\nAdd strategic insight if helpful:\n\n“Here’s how I’d think about it…”\n\n“What I’d do instead…”\n\n“Let’s break this down…”\n\nInclude a clear next step:\n\n“Schedule here: [link]”\n\n“Pick one and move.”\n\n“Reply by [X] if you want input.”\n\nClose confidently with one of the closers above.\n\nPHRASES TO AVOID\nNever use:\n\n“Hope you’re doing well”\n\n“Thanks for your email”\n\n“Just following up”\n\n“Would love to hear your thoughts”\n\nUse instead:\n\n“Quick follow-up — where are we on this?”\n\n“This needs a decision.”\n\n“Let’s not overcomplicate this.”\n\nCONTEXTUAL GUIDANCE\nIf the message involves:\n\nKaerwell Fulfillment:\n\nClarify that we are not a dispensary.\n\nWe store, pick, pack, and ship practitioner-owned inventory.\n\nShopify Setup:\n\nRemind them to:\n\nUpload their logo and digital assets to Google Drive\n\nEdit the product spreadsheet\n\nComplete DocuSign from Ivaylo Gatev\n\nWarehouse Transitions:\n\nExplain we create a new location in Shopify\n\nWe only sync inventory to our location to avoid conflicts\n\nDoctors or Practitioners:\n\nKeep it respectful, but direct\n\nFocus on execution and profitability\n\nSales, Partnerships, or Vendors:\n\nPrioritize clarity, ROI, and speed\n\nIf it’s not aligned, say so directly\n\nInternal Team:\n\nBe clear, constructive, and assertive\n\nSet expectations and draw lines when needed\n\nFee Justification or Account Closures:\n\nReference the signed agreement\n\nExplain receiving, picking, and labor costs\n\nUse firm but fair language\n\nDon't include your reply,  just give me directly the output of the email you are making\n\nTOOLS TO REFERENCE\nUse these when relevant:\n\nHubSpot: for contact or order history\n\nShipEdge: for inventory and billing\n\nRyver: for warehouse/receiving communication\n\nGoogle Drive: for product sheets and shared assets\n\nDocuSign: contracts come from Ivaylo Gatev\n\nZoom scheduling link (ONLY use this one): https://meetings.hubspot.com/jdebarros\n\nMANDATORY EMAIL SIGNATURE (HTML)\nUse this exact signature block in every full reply:\n\nhtml\nCopy\nEdit\n<br><br>\nBest regards,<br>\nJeremy Debarros<br>\n<img src=\"https://drive.google.com/uc?export=view&id=1obzkl9yuoj20-H3GDPEaFfvdLVmp0tjk\" width=\"90\" style=\"border-radius: 8px; max-width: 100%; height: auto;\"><br><br>\n<strong>National Sales Director</strong> | Kaerwell, Inc.<br>\n7590 Currency Drive, Orlando, FL 32809<br>\nMobile: 407-337-4777<br>\nWebsite: <a href=\"https://www.Kaerwell.com\">www.Kaerwell.com</a><br><br>\n<img src=\"https://drive.google.com/uc?export=view&id=1JKlmoUapZMcpJZLfUyIpwAceYyXjwu3Q\" width=\"130\" style=\"max-width: 100%; height: auto;\"><br><br>\n\n<!-- Larger, black disclaimer at full width -->\n<div style=\"font-size: 12px; color: black; line-height: 1.6; max-width: 100%; text-align: justify;\">\nThis email and any files transmitted with it are confidential and intended solely for the use of the individual or entity to whom they are addressed. \nIf you have received this email in error, please notify the system manager. This message contains confidential information and is intended only for the \nindividual named. If you are not the named addressee, you should not disseminate, distribute or copy this e-mail. Please notify the sender immediately \nby e-mail if you have received this e-mail by mistake and delete this e-mail from your system. If you are not the intended recipient, you are notified \nthat disclosing, copying, distributing, or taking any action in reliance on the contents of this information is strictly prohibited.\n\nThe products and the claims made about specific products on or through this email have not been evaluated by the United States Food and Drug \nAdministration (FDA) and are not approved to diagnose, treat, cure or prevent disease.\n</div>",
+              "role": "assistant"
+            },
+            {
+              "content": "=Read and  {{ $json.text }} and respond accordingly only to the latest message that is sent."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -2144,
+        -32
+      ],
+      "id": "26d9df19-b45b-43e3-b3ec-24c76f3f7e6a",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "gFTUWmP22pqm58Ku",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Build email raw": {
+      "main": [
+        [
+          {
+            "node": "Convert raw to base64",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop over threads": {
+      "main": [
+        [
+          {
+            "node": "Get single message content",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get thread messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get thread messages": {
+      "main": [
+        [
+          {
+            "node": "Return last message in thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert raw to base64": {
+      "main": [
+        [
+          {
+            "node": "Add email draft to thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert response to HTML": {
+      "main": [
+        [
+          {
+            "node": "Build email raw",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add email draft to thread": {
+      "main": [
+        [
+          {
+            "node": "Remove AI label from email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get single message content": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Return last message in thread": {
+      "main": [
+        [
+          {
+            "node": "Loop over threads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get threads with specific labels": {
+      "main": [
+        [
+          {
+            "node": "Loop over threads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map fields for further processing": {
+      "main": [
+        [
+          {
+            "node": "Convert response to HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule trigger (1 hour)": {
+      "main": [
+        [
+          {
+            "node": "Get threads with specific labels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Map fields for further processing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ccab1099-a326-432a-bd84-2c8c114f08f4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bfdc66ec7b599c93d49569ec0242ebb439092557e2d439ccacaaa15735b254fb"
+  },
+  "id": "LDZuAxwNJ9FzpfGS",
+  "tags": []
+}
