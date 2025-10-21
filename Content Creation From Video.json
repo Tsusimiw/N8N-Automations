@@ -13,10 +13,10 @@
         "triggerOn": "specificFolder",
         "folderToWatch": {
           "__rl": true,
-          "value": "14FRYOZEyt5_Bujj3kHoNqVs7wx4JAeKa",
+          "value": "",
           "mode": "list",
-          "cachedResultName": "Content Uploads",
-          "cachedResultUrl": "https://drive.google.com/drive/folders/14FRYOZEyt5_Bujj3kHoNqVs7wx4JAeKa"
+          "cachedResultName": "",
+          "cachedResultUrl": ""
         },
         "event": "fileCreated",
         "options": {}
@@ -31,8 +31,8 @@
       "name": "Google Drive Trigger",
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "VleBZkmbGr9ZqYAk",
-          "name": "Google Drive account"
+          "id": "",
+          "name": ""
         }
       }
     },
@@ -52,12 +52,12 @@
         -192,
         -304
       ],
-      "id": "e10437f0-3bf4-4bf0-a1cc-8810f7cccf33",
+      "id": "",
       "name": "Download file",
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "VleBZkmbGr9ZqYAk",
-          "name": "Google Drive account"
+          "id": "",
+          "name": ""
         }
       }
     },
@@ -100,8 +100,8 @@
       "id": "78fb6131-ce2b-4f30-a973-e5fcdbc0e5c2",
       "credentials": {
         "aws": {
-          "id": "FpzII9hlpTha0Fi8",
-          "name": "AWS account 2"
+          "id": "",
+          "name": ""
         }
       }
     },
@@ -139,11 +139,11 @@
         -304
       ],
       "typeVersion": 1,
-      "id": "9493fb36-5fea-4b35-ab43-878ed6f4d214",
+      "id": "",
       "credentials": {
         "aws": {
-          "id": "FpzII9hlpTha0Fi8",
-          "name": "AWS account 2"
+          "id": "",
+          "name": ""
         }
       }
     },
@@ -185,8 +185,8 @@
       "name": "Delete a file",
       "credentials": {
         "aws": {
-          "id": "FpzII9hlpTha0Fi8",
-          "name": "AWS account 2"
+          "id": "",
+          "name": ""
         }
       }
     },
