@@ -1,0 +1,538 @@
+{
+  "name": "MLSM Drop Off 99 cents",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Your role is to create a 25-second, 9:16 vertical video concept for Mandy's Laundry that uses light, relatable tired parent humor, set in Van Nuys. The video must promote the 0.99 per pound wash and dry only drop-off offer, with exactly 5 scenes and smooth, modern transitions. You must let the system think for itself in generating the exact visuals, actions, transitions, camera angles, pacing, and comedic moments, but the overall goal is to communicate the following:\n\nGENERAL RULES\n– Total duration: exactly 25 seconds\n– Format: 9:16 vertical, optimized for TikTok, Reels, and YouTube Shorts\n– Location: always Van Nuys (no city rotation)\n– Offer: 0.99 per pound – wash and dry only\n– Clarify terms: drop-off only, 20 lb minimum, customer chooses Tide or Gain\n– Style: fast, clean, modern, slightly humorous, family friendly\n– Audio: upbeat background music and one friendly, conversational voiceover that matches the visuals\n– No talking heads or interviews\n– Keep on-screen text short, bold, and easy to read\n– Use Mandy’s Laundry brand colors (orange and navy) and place the Mandy’s Laundry logo in the bottom right on branded scenes\n– Do not add extra formatting, code blocks, Markdown, or quotation marks. Respond with plain text only.\n- Include Hashtags",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Your role is to create a 25-second, 9:16 vertical video concept for Mandy's Laundry that uses light, relatable tired parent humor, set in Van Nuys. The video must promote the 0.99 per pound wash and dry only drop-off offer, with exactly 5 scenes and smooth, modern transitions. You must let the system think for itself in generating the exact visuals, actions, transitions, camera angles, pacing, and comedic moments, but the overall goal is to communicate the following:\n\nGENERAL RULES\n– Total duration: exactly 25 seconds\n– Format: 9:16 vertical, optimized for TikTok, Reels, and YouTube Shorts\n– Location: always Van Nuys (no city rotation)\n– Offer: 0.99 per pound – wash and dry only\n– Clarify terms: drop-off only, 20 lb minimum, customer chooses Tide or Gain\n– Style: fast, clean, modern, slightly humorous, family friendly\n– Audio: upbeat background music and one friendly, conversational voiceover that matches the visuals\n– No talking heads or interviews\n– Keep on-screen text short, bold, and easy to read\n– Use Mandy’s Laundry brand colors (orange F57C00 and navy 1F2A44) and place the Mandy’s Laundry logo in the bottom right on branded scenes\n– Do not add extra formatting, code blocks, Markdown, or quotation marks. Respond with plain text only.\n- Include Hashtags\n\nOUTPUT FORMAT\nYou must output exactly 10 fields in this order:\nscene1\nscene1_duration\nscene2\nscene2_duration\nscene3\nscene3_duration\nscene4\nscene4_duration\nscene5\nscene5_duration\n\nFor scene1, scene2, scene3, scene4, and scene5:\n– Write a detailed yet concise description of the visuals, actions, transitions, and the matching voiceover line(s) for that scene.\n– Include any on-screen text that should appear in that scene.\n\nFor scene1_duration, scene2_duration, scene3_duration, scene4_duration, and scene5_duration:\n– Output only the number of seconds as an integer (for example: 5), with no words, no labels, and no units.\n– The 5 durations must add up to exactly 25 seconds.\n\nHUMOR AND STORY STRUCTURE\nUse tired parent humor as the emotional anchor. Start with an exaggerated but relatable laundry crisis in a Van Nuys home, escalate the chaos briefly, then introduce Mandy’s Laundry as the simple solution, and finish with a relaxed, happy parent and strong branding.\n\nScene 1 – Hook in Van Nuys\nGoal: Immediately grab attention with a funny, visually clear moment of laundry overwhelm for a tired parent in a small Van Nuys apartment or house. Show obvious chaos and stress. Introduce Van Nuys in the visuals or voiceover.\n\nScene 2 – Escalate the Problem\nGoal: Make the laundry situation feel even more out of control in a humorous way (more clothes, more mess, kids adding to the pile, time pressure). Keep it fast and playful, not negative.\n\nScene 3 – Introduce Mandy’s Laundry and the 0.99 Offer\nGoal: Shift to bright, clean Mandy’s Laundry visuals in brand colors. Show the parent arriving with a big bag of laundry and staff or machines handling it. On-screen text should clearly show: 0.99 per pound – Wash & Dry Only. Voiceover explains drop-off only, 20 lb minimum, and choice of Tide or Gain.\n\nScene 4 – Relief and Lifestyle Benefit\nGoal: Show the same parent now relaxed and free, enjoying their time in Van Nuys (with kids, coffee, or a quiet moment) while Mandy’s Laundry handles the washing and drying. Emphasize time saved, less stress, and convenience.\n\nScene 5 – Branded Close for Van Nuys\nGoal: End with strong branding and a simple message. Show stacks of clean laundry or a clean branded interior shot, Mandy’s Laundry logo bottom right, Mandy’s colors, and a subtle hint that this is in Van Nuys. On-screen text should reinforce: Van Nuys · 0.99 per pound wash & dry. Voiceover ends with a clear, friendly line inviting Van Nuys families to use Mandy’s Laundry."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -96,
+        816
+      ],
+      "id": "66a27ec4-e30b-461f-97a1-1d775a6db34a",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d0c4bd3b-64f0-4107-8b3c-ebd4965d9c53",
+              "leftValue": "={{ $json.data.state }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        848,
+        816
+      ],
+      "id": "8496273c-1977-46a7-8285-3994c5ae39c0",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1296,
+        976
+      ],
+      "id": "255146df-f0a3-480e-8034-a78ac09d8cb2",
+      "name": "Wait1",
+      "webhookId": "4b30e51f-5fe5-427f-af3d-d64bfb653b2f"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-5-20250929",
+          "cachedResultName": "Claude Sonnet 4.5"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        -96,
+        1072
+      ],
+      "id": "116e0e62-fe3c-4041-a4da-31b61ce13b08",
+      "name": "Anthropic Chat Model1",
+      "credentials": {
+        "anthropicApi": {
+          "id": "y1IauLD0d2pilCEB",
+          "name": "SA-SEO"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"scene1\": \"Image\",\n  \"scene1_duration\": \"5\",\n  \"scene2\": \"Image\",\n  \"scene2_duration\": \"5\",\n  \"scene3\": \"Image\",\n  \"scene3_duration\": \"5\",\n  \"scene4\": \"Image\",\n  \"scene4_duration\": \"5\",\n    \"scene5\": \"Image\",\n  \"scene5_duration\": \"5\",\n  \"title\": \"[Engaging title with city name]\",\n  \"caption\": \"caption and hashtags\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        48,
+        1072
+      ],
+      "id": "167df635-deb6-4d58-b135-8e95a790519c",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 12 * * 1,3,6"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -352,
+        816
+      ],
+      "id": "8367aad0-00f5-40e1-a477-2df6ae963e2d",
+      "name": "Schedule Trigger2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"sora-2-pro-storyboard\",\n  \"input\": {\n    \"n_frames\": \"25\",\n    \"aspect_ratio\": \"portrait\",\n    \"shots\": [\n      {\n        \"Scene\": \"{{ $('AI Agent1').item.json.output.scene1 }}\",\n        \"duration\": \"{{ $('AI Agent1').item.json.output.scene1_duration }}\"\n      },\n      {\n        \"Scene\": \"{{ $('AI Agent1').item.json.output.scene2 }}\",\n        \"duration\": \"{{ $('AI Agent1').item.json.output.scene2_duration }}\"\n      },\n      {\n        \"Scene\": \"{{ $('AI Agent1').item.json.output.scene3 }}\",\n        \"duration\": \"{{ $('AI Agent1').item.json.output.scene3_duration }}\"\n      },\n      {\n        \"Scene\": \"{{ $('AI Agent1').item.json.output.scene4 }}\",\n        \"duration\": \"{{ $('AI Agent1').item.json.output.scene4_duration }}\"\n      },\n      {\n        \"Scene\": \"{{ $('AI Agent1').item.json.output.scene5 }}\",\n        \"duration\": \"{{ $('AI Agent1').item.json.output.scene5_duration }}\"\n      }\n    ]\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        304,
+        816
+      ],
+      "id": "92f2c34d-39da-4ea7-9b0e-4b3f1d8fdbba",
+      "name": "Video Generator1",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "RQ8bLnpwszqr7T5h",
+          "name": "Kie.AI Bearer"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        640,
+        816
+      ],
+      "id": "d7d3eb64-d6e9-4402-8467-4ade2991b019",
+      "name": "Get the Video",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "RQ8bLnpwszqr7T5h",
+          "name": "Kie.AI Bearer"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.extractedUrl }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1264,
+        720
+      ],
+      "id": "d17aee6e-854b-4a99-b973-ded44d6f8c33",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Access the JSON string from the correct path\nconst resultJson = $input.first().json.data.resultJson; \n\n// Check if resultJson is a string and parse it if needed\nlet parsedJson;\nif (typeof resultJson === 'string') {\n    parsedJson = JSON.parse(resultJson); // Parse the JSON string to an object\n} else {\n    parsedJson = resultJson; // If it's already an object, no need to parse\n}\n\n// Extract the URL from the resultUrls array\nconst url = parsedJson.resultUrls[0]; // Get the first URL from the array\n\n// Return the URL wrapped in an object within an array as required by n8n\nreturn [{ json: { extractedUrl: url } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1056,
+        720
+      ],
+      "id": "513156e1-c69d-4070-a7e0-824ec59b639a",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        176,
+        1168
+      ],
+      "id": "3b4c04c6-5e9f-4c3f-bd59-d6765386e746",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "You save content memory to not make the same content and prompts",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -208,
+        1184
+      ],
+      "id": "6d4135b6-a5b6-4f4d-8c25-c6b1b1940c22",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v24.0/103536924842183/videos",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "access_token"
+            },
+            {
+              "name": "file_url",
+              "value": "={{ $json.extractedUrl }}"
+            },
+            {
+              "name": "description",
+              "value": "={{ $('AI Agent1').item.json.output.caption }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1488,
+        720
+      ],
+      "id": "793b64c8-4469-4747-aaaf-3111679c240c",
+      "name": "Upload to Facebook"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Code in JavaScript').item.json.extractedUrl }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1280,
+        544
+      ],
+      "id": "19f12cec-0a65-4d7f-90d1-37709ce11197",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "name": "={{ $('AI Agent1').item.json.output.title }}",
+        "driveId": {
+          "__rl": true,
+          "value": "0AHzryBfuaoQ-Uk9PVA",
+          "mode": "list",
+          "cachedResultName": "N8n  Work flows ",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/0AHzryBfuaoQ-Uk9PVA"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1wjYUb3pRQJIpT4leiurF_TSI4wtbwjAd",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1488,
+        544
+      ],
+      "id": "2723e2b4-3b89-40c7-9b38-47a1b24822e4",
+      "name": "Upload file1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "Xc7XxEvrgaX46GGB",
+          "name": "BlogSyndication"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Anthropic Chat Model1": [
+      {
+        "json": {
+          "isArtificialRecoveredEventItem": true
+        }
+      }
+    ],
+    "Structured Output Parser1": [
+      {
+        "json": {
+          "isArtificialRecoveredEventItem": true
+        }
+      }
+    ],
+    "Schedule Trigger2": [
+      {
+        "json": {
+          "isArtificialRecoveredEventItem": true
+        }
+      }
+    ],
+    "Think": [
+      {
+        "json": {
+          "isArtificialRecoveredEventItem": true
+        }
+      }
+    ],
+    "Simple Memory": [
+      {
+        "json": {
+          "isArtificialRecoveredEventItem": true
+        }
+      }
+    ]
+  },
+  "connections": {
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Video Generator1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Get the Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video Generator1": {
+      "main": [
+        [
+          {
+            "node": "Get the Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get the Video": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Upload to Facebook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Facebook": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Upload file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ee969676-4933-4876-a217-b588c42f5361",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5e7abb15966c9425356516d6683670dcd6e178c8b1fb231f1b3528ab86b345e4"
+  },
+  "id": "zEMiKeGQl5BdABZa",
+  "tags": [
+    {
+      "updatedAt": "2025-11-04T13:27:09.509Z",
+      "createdAt": "2025-11-04T13:27:09.509Z",
+      "id": "1eQmxvg3fZDz8doI",
+      "name": "Facebook"
+    },
+    {
+      "updatedAt": "2025-11-25T13:39:12.186Z",
+      "createdAt": "2025-11-25T13:39:12.186Z",
+      "id": "uiJVQBG9SoEsyBpT",
+      "name": "Video"
+    }
+  ]
+}

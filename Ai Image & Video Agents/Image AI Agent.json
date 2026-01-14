@@ -1,0 +1,585 @@
+{
+  "name": "MLSM 99 cents",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        2240,
+        544
+      ],
+      "id": "a0d13820-92e5-44e9-8039-4fdb14c7e449",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "sendTo": "lanzelongakit4@gmail.com",
+        "subject": "ERROR",
+        "message": "There is an error in the workflow.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2448,
+        544
+      ],
+      "id": "d1a5ef2d-7c65-401f-8e7a-58f486612b44",
+      "name": "Send a message",
+      "webhookId": "58da89e6-9b38-48ba-855f-01dc41c7262a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "CUrhhklRBWHuqyNf",
+          "name": "SEO"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "INSTAGRAM\n",
+        "height": 800,
+        "width": 2160,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        768,
+        1040
+      ],
+      "typeVersion": 1,
+      "id": "21d40858-94c6-48c8-b49f-168e177968f7",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 6,12,18 * * 1"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        1152
+      ],
+      "id": "8ff584e0-1810-44b7-8c15-2873de12560d",
+      "name": "Schedule Trigger2"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"image_prompt\": \"Image\",\n  \"title\": \"[Engaging title with city name]\",\n  \"hashtags\": \"#Hashtag1 #Hashtag2 #Hashtag3 #Hashtag4 #Hashtag5 #Hashtag6\",\n\"content\": \"content\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1264,
+        1408
+      ],
+      "id": "13272893-491c-46a0-84ce-6e9439ac8e71",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-5-20250929",
+          "cachedResultName": "Claude Sonnet 4.5"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        1120,
+        1392
+      ],
+      "id": "eca3ddaf-a4ef-440c-ad1f-1f65f25c28e1",
+      "name": "Anthropic Chat Model1",
+      "credentials": {
+        "anthropicApi": {
+          "id": "y1IauLD0d2pilCEB",
+          "name": "SA-SEO"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2544,
+        1312
+      ],
+      "id": "cf34579f-c694-4155-8f3c-7c50af551589",
+      "name": "Wait1",
+      "webhookId": "2c7ff44f-8763-41e7-8c38-b35b81de54eb"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d0c4bd3b-64f0-4107-8b3c-ebd4965d9c53",
+              "leftValue": "={{ $json.data.successFlag }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2304,
+        1152
+      ],
+      "id": "061b2482-5a0f-4eda-868f-a9f48a31163b",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/gpt4o-image/record-info",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2096,
+        1152
+      ],
+      "id": "86a2501a-2a88-4375-ac80-2dad455f1dd1",
+      "name": "Get The Image2",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "RQ8bLnpwszqr7T5h",
+          "name": "Kie.AI Bearer"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/gpt4o-image/generate",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"prompt\": \"{{ $('AI Agent1').item.json.output.image_prompt }}\",\n  \"size\": \"1:1\",\n  \"isEnhance\": false,\n  \"uploadCn\": false,\n  \"nVariants\": 1,\n  \"enableFallback\": false,\n  \"fallbackModel\": \"FLUX_MAX\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1888,
+        1152
+      ],
+      "id": "21aa842e-f425-4bfd-a35d-2316feb0e4f5",
+      "name": "Image Generator2",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "RQ8bLnpwszqr7T5h",
+          "name": "Kie.AI Bearer"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=make a short instagram post with image generation",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Write a short, high-engagement social media caption for Mandy’s Laundry using the following details:\n\nImage prompt should be realistic or semi realistic\n\nPost Type: (Offer / Value / Humor / City-Specific / Customer Pain Point / Pickup & Delivery Reminder)\n\nCity: (Insert SFV city or “all San Fernando Valley”)\n\nOffer: (e.g., $0.99/lb wash & dry drop-off, 20-lb washers for $2, pickup & delivery)\n\nAudience: Busy residential customers, apartment renters, families, professionals, SFV homeowners\n\nBrand Voice: Friendly, helpful, local, trustworthy\n\nGoal: Drive calls or texts for laundry drop-off or pickup\n\nSEO Keywords: laundry service, wash and fold, drop-off laundry, San Fernando Valley laundry, pickup laundry service\n\nRequirements:\n\nStart with a short hook (1 line).\n\nAdd 1–2 value points (fast, affordable, local).\n\nMention city naturally.\n\nNo hard selling; keep conversational.\n\nEnd with a soft CTA: “It's easy but have limited slots”\n\nKeep under 200 characters unless it’s a longer value post.\n\nUse emojis sparingly (1–2 maximum).\n\n✅ EXAMPLES GENERATED FROM THE PROMPT\nOffer Caption\n\n“Laundry piling up? We’ve got you. 🧺\n$0.99/lb wash & dry — drop-off only in Reseda.\nText us to save your spot today.”\n\nValue / Convenience Caption\n\n“Busy week? Let Mandy’s handle the laundry so you can breathe.\nServing all San Fernando Valley apartments & homes.”\n\nHumor Caption\n\n“When the laundry basket starts looking like Mount Everest… we step in. 🏔️\nDrop it off — we’ll take it from here.”\n\nCity-Specific Caption\n\n“Hey Van Nuys — need laundry done fast?\nSame-day wash & fold available. Text us for availability.”\n\ninclude hastags\n\nFor the image prompt I want you to put above to have $0.99/lb wash & dry drop-off and at the bottom is mandy's laundry or a phone number (818-960-6981)"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1120,
+        1152
+      ],
+      "id": "bf40d708-455c-480c-b9db-1f29357712d7",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v24.0/17841447934758090/media_publish",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "=creation_id",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "name": "access_token"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "86ba91c9-68d7-4a63-8334-e839c9210663",
+      "name": "Publish Post1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3248,
+        1136
+      ],
+      "typeVersion": 4.3,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v24.0/17841447934758090/media",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "image_url",
+              "value": "={{ $json.data.response.resultUrls[0] }}"
+            },
+            {
+              "name": "caption",
+              "value": "={{ $('AI Agent1').item.json.output.content }}{{ $('AI Agent1').item.json.output.hashtags }}"
+            },
+            {
+              "name": "access_token",
+              "value": "EAAPeH5hzgf0BP10UaSgutQhyDTBMhyjamAXcZA3ubd3OHUEgJrrn1IdfRT2GT4YYa9jF6Gckwdk0qZBcl0KviQtcFDNLNvrGR8GTQtq1kp9ttvxYBckacxwCza1Gw2UWF8BP59hezcA5IZAZASTZAasJlbH8gUT2TZAORFG9pJ1fEb2ZBuNveIZAOastBBXwBAaEZAc1ZAfh4ZD"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2649e6aa-204f-42c8-a756-89e147dc0dca",
+      "name": "Upload Photo1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2848,
+        1136
+      ],
+      "typeVersion": 4.3
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.data.response.resultUrls[0] }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "options": {}
+      },
+      "id": "744886a8-f6ae-4bc5-895d-025035983f7e",
+      "name": "Load Image1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2624,
+        1136
+      ],
+      "typeVersion": 4.3,
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "GbcpyaxCH0yXCfsG",
+          "name": "Mandy's Laundry"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3056,
+        1136
+      ],
+      "id": "2f391535-d200-4ca5-85a9-cee2e98e79dd",
+      "name": "Wait",
+      "webhookId": "f3375654-492a-4d35-8b58-68e7d462b675"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Get The Image2').item.json.data.response.resultUrls[0] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2624,
+        944
+      ],
+      "id": "983c9b19-3485-4619-9caa-6b27fe62166a",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "name": "={{ $('AI Agent1').item.json.output.title }}",
+        "driveId": {
+          "__rl": true,
+          "value": "0AHzryBfuaoQ-Uk9PVA",
+          "mode": "list",
+          "cachedResultName": "N8n  Work flows ",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/0AHzryBfuaoQ-Uk9PVA"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1wjYUb3pRQJIpT4leiurF_TSI4wtbwjAd",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2848,
+        944
+      ],
+      "id": "229f7c84-c919-48d9-ae4e-a2948fdb4af5",
+      "name": "Upload file1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "Xc7XxEvrgaX46GGB",
+          "name": "BlogSyndication"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Schedule Trigger2": [
+      {
+        "json": {
+          "timestamp": "2025-11-29T00:00:07.007-05:00",
+          "Readable date": "November 29th 2025, 12:00:07 am",
+          "Readable time": "12:00:07 am",
+          "Day of week": "Saturday",
+          "Year": "2025",
+          "Month": "November",
+          "Day of month": "29",
+          "Hour": "00",
+          "Minute": "00",
+          "Second": "07",
+          "Timezone": "America/New_York (UTC-05:00)"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Get The Image2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Load Image1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get The Image2": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Generator2": {
+      "main": [
+        [
+          {
+            "node": "Get The Image2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Image Generator2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Photo1": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Image1": {
+      "main": [
+        [
+          {
+            "node": "Upload Photo1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Publish Post1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publish Post1": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Upload file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Los_Angeles",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "765dce60-a0e7-4f89-b385-784975f1bd60",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5e7abb15966c9425356516d6683670dcd6e178c8b1fb231f1b3528ab86b345e4"
+  },
+  "id": "iuTWvgXqdp7bAiY5",
+  "tags": [
+    {
+      "updatedAt": "2025-11-25T14:14:41.839Z",
+      "createdAt": "2025-11-25T14:14:41.839Z",
+      "id": "ldCKpeNRYDQMq2b4",
+      "name": "Instagram"
+    },
+    {
+      "updatedAt": "2025-11-25T13:38:15.002Z",
+      "createdAt": "2025-11-25T13:38:15.002Z",
+      "id": "cTvrNFBwkwcH9Ajq",
+      "name": "Image"
+    }
+  ]
+}
