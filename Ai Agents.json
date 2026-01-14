@@ -1,0 +1,646 @@
+{
+  "name": "Ai Agents",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-agent-home-buyers",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -64,
+        0
+      ],
+      "id": "43204f58-6fbb-4021-bd87-6d07a77f21f1",
+      "name": "Webhook",
+      "webhookId": "434f6d57-7950-4206-9010-a503c62e97fb"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=This is a message from  {{ $json.body.name }}\n\nRespond to the user message {{ $json.body.message }}",
+        "options": {
+          "systemMessage": "=SUPER AI AGENT — SYSTEM CONTEXT\n\nPurpose: Online Real Estate Webinar Registration, Confirmation & Feedback\n\n1. ROLE & OBJECTIVE\n\nYou are a professional real estate webinar assistant for Oscar’s Real Estate Experts.\n\nYour sole purpose is to:\n\nIf they talk in spanish, talk in spanish\n\nAsk Number 9, If First Time Conversation\n\nOnly ask 1 question at a time\n\nBefore Everything Starts, Make Number 4 A priority (PRIMARY DATA TO COLLECT)\n\nEducate and add value\n\nCollect and verify contact information\n\nRegister users for the online real estate webinar \n\nConfirm attendance details after booking the using book a date tool\n\n\nApply correct CRM tags\n\nFollow up after the event to gather feedback and continue nurturing\n\nYou are polite, clear, efficient, and value-driven.\nYou do not pressure, sell aggressively, or overwhelm.\n\n2. LANGUAGE & TAGGING RULES\n\nLanguage: English only\n\nTag immediately: english\n\nMaintain a professional, friendly, educational tone at all times\n\n3. EVENT DETAILS (STATIC LOGIC) Check dates using the Check Schedule Tool\nEvent Type: Online Webinar\n\nDay: Use the Check Schedule Tool\n\nTime: 6:00 PM\n\nFrequency: Every two weeks\n\nTimezone: Los Angeles\n\n4. PRIMARY DATA TO COLLECT (IN THIS ORDER)\n\nYou must naturally and conversationally collect:\n\nFirst & Last Name\n\nYou must confirm each item clearly before proceeding if by letting them answer yes or no\n\nMobile Phone Number\n\nYou must confirm each item clearly before proceeding if by letting them answer yes or no, then (we will be sending you reminders in the next following days regarding the webinar)\n\nEmail Address\n\n\nYou must confirm each item clearly before proceeding if by letting them answer yes or no, then (we will be sending you reminders in the next following days regarding the webinar)\n\nCity they live in\n\nYou must confirm each item clearly before proceeding if by letting them answer yes or no\n\n5. REGISTRATION FLOW (LIVE CONVERSATION)\nStep 1 – Warm Introduction\n\nBriefly explain the purpose of the webinar and how it helps homeowners or buyers.\n\nDo not assume experience level.\n\nStep 2 – Confirm Interest & Availability\n\nConfirm the next Tuesday at 6:00 PM works for them.\n\nIf yes → proceed\nIf no → offer the next available Tuesday (bi-weekly)\n\nStep 3 – Collect Contact Information\n\nExplain that the information is needed to:\n\nSave their seat\n\nSend the webinar link\n\nSend reminders\n\nNever say “marketing” or “ads.”\n\nStep 4 – Confirmation Message\n\nOnce all data is collected:\n\nConfirm date & time\n\nConfirm delivery method (email + SMS)\n\nReassure them the session is educational and free\n\n6. CRM TAGGING RULES (MANDATORY)\n\nApply all relevant tags:\n\nenglish\n\nwebinar-online\n\nregistered\n\nevent-YYYY-MM-DD\n\ncity-[UserCity]\n\n7. POST-EVENT FOLLOW-UP (AUTOMATED — 1 DAY AFTER)\nFIRST FOLLOW-UP MESSAGE (EXACT INTENT)\n\nThis must be the first message sent after the webinar.\n\nRequired opening question:\n\n“Did you attend the event, and how was it? We’d love your feedback.”\n\n8. FEEDBACK HANDLING LOGIC\nIf user attended:\n\nThank them\n\nAsk what they found most valuable\n\nOffer next step (resources, replay, or next session)\n\nIf user did NOT attend:\n\nBe understanding\n\nOffer the replay or next Tuesday session\n\nKeep tone helpful, never guilt-based\n\n9. ALWAYS ASK THIS QUESTION FIRST (MAIN PRIORITY)\n\n👋 Hey! Thanks for reaching out about our FREE Home Buyer Workshop!\n\nQuick question: Are you looking to buy in Ventura County, San Fernando Valley, or Santa Clarita Valley?\n\nReply with:\n1️⃣ Ventura County\n2️⃣ San Fernando Valley\n3️⃣ Santa Clarita Valley\n4️⃣ Multiple areas\n\n10. RESTRICTIONS & COMPLIANCE\n\nDo NOT give legal or financial advice\n\nDo NOT quote prices unless instructed\n\nDo NOT argue or contradict the user\n\nDo NOT overwhelm with long messages\n\nKeep responses short, clear, and human\n\n11. SUCCESS DEFINITION\n\nThis workflow is successful when:\n\nContact info is verified\n\nUser is tagged correctly\n\nAttendance is confirmed or rescheduled\n\nFeedback is collected post-event\n\nConversation feels helpful, not salesy\n\n12. AFTER CONVERSATION RECOMMENDATION\n\nRecommend them to like our pages\n\nhttps://www.facebook.com/TheOscarsRealEstateExperts"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "8347009c-c76a-4d61-bdfc-16841b6e96a4",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-5-20250929",
+          "cachedResultName": "Claude Sonnet 4.5"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        -64,
+        240
+      ],
+      "id": "a889dcd2-5b27-4cea-8cf2-7c4dac2bd244",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "y1IauLD0d2pilCEB",
+          "name": "SA-SEO"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        768,
+        0
+      ],
+      "id": "e3d60da3-4869-49d8-b2db-a945cb854bb6",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "da097f4d-ba73-4d10-8b7d-edfa409fa7d5",
+              "name": "contact.id",
+              "value": "={{ $json.body.id }}",
+              "type": "string"
+            },
+            {
+              "id": "ba333475-e3c1-4352-95ff-86f68803397d",
+              "name": "body.name",
+              "value": "={{ $json.body.name }}",
+              "type": "string"
+            },
+            {
+              "id": "8d720c24-7167-45bc-85d1-d50c0a07efb2",
+              "name": "body.email",
+              "value": "={{ $json.body.email }}",
+              "type": "string"
+            },
+            {
+              "id": "aea7f427-5e57-41d6-af04-9e28fdb05a78",
+              "name": "body.phone",
+              "value": "={{ $json.body.phone }}",
+              "type": "string"
+            },
+            {
+              "id": "2e5d340c-1834-44ef-9ce3-590d729c51c2",
+              "name": "body.message",
+              "value": "={{ $json.body.message }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        144,
+        0
+      ],
+      "id": "1bd792a9-f43b-41df-906d-883d2097dd4b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "description": "Use this tool when checking for a schedule for appointments for the month or what days the webinars will be held ",
+        "workflowId": {
+          "__rl": true,
+          "value": "NC5pB16jwYZYBT29",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/NC5pB16jwYZYBT29",
+          "cachedResultName": "Check Schedule"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{ $now }}",
+            "contact id": "={{ $json.contact.id }}",
+            "name": "={{ $json.body.name }}",
+            "email": "={{ $json.body.email }}",
+            "phone": "={{ $json.body.phone }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "contact id",
+              "displayName": "contact id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        368,
+        368
+      ],
+      "id": "61e61175-1dbc-4cd0-82d9-e0bc104ff711",
+      "name": "Call 'Check Schedule'"
+    },
+    {
+      "parameters": {
+        "description": "Use this tool to find after finding a the date he wants to schedule and now they want to book an appointment with us.",
+        "workflowId": {
+          "__rl": true,
+          "value": "M93PGc04V8urvrzg",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/M93PGc04V8urvrzg",
+          "cachedResultName": "Book A Date"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('date', `date should be the scheduled date the person wants to attend.`, 'string') }}",
+            "contact id": "={{ $json.contact.id }}",
+            "name": "={{ $json.body.name }}",
+            "phone": "={{ $json.body.phone }}",
+            "email": "={{ $json.body.email }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "contact id",
+              "displayName": "contact id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        496,
+        368
+      ],
+      "id": "b54e5ed9-d637-467d-9a1d-c92bafaeb720",
+      "name": "Call 'Book A Date'"
+    },
+    {
+      "parameters": {
+        "description": "Use this tool to create a record of them after making the appointment",
+        "workflowId": {
+          "__rl": true,
+          "value": "BrtueRi4fdaekHUO",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/BrtueRi4fdaekHUO",
+          "cachedResultName": "Add to Contacts"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('date', `Add the date of the appointment they choose to attend`, 'string') }}",
+            "name": "={{ $json.body.name }}",
+            "email": "={{ $json.body.email }}",
+            "phone": "={{ $json.body.phone }}",
+            "contact id": "={{ $json.contact.id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "contact id",
+              "displayName": "contact id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        368
+      ],
+      "id": "ceb81cc6-b7fe-4b2d-b44e-59065a5c26c9",
+      "name": "Call 'Add to Contacts'"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=Save the name ({{ $json.body.name }}) to and messages and to check if you had a conversation before if yes, continue",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        80,
+        240
+      ],
+      "id": "8854e89e-40fe-4190-abdc-a41337632daa",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "After getting their basic information, name, email, phone number, record or update here if you have all the information",
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "appJDkyEQdodHjA2Z",
+          "mode": "list",
+          "cachedResultName": "Airtable Record For Homebuyers",
+          "cachedResultUrl": "https://airtable.com/appJDkyEQdodHjA2Z"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblIObs1EnEpSEwA9",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appJDkyEQdodHjA2Z/tblIObs1EnEpSEwA9"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.body.name }}",
+            "id": "={{ $json.contact.id }}",
+            "Email": "={{ $json.body.email }}",
+            "Phone Number": "={{ $json.body.phone }}",
+            "Date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Date', `Add the date they scheduled an appointment on`, 'string') }}"
+          },
+          "matchingColumns": [
+            "Name"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        752,
+        368
+      ],
+      "id": "48c68bad-bc86-4e56-b9a2-dbf8b6b4fe90",
+      "name": "Create or update a record in Airtable",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "TNKxmBlHncxPQgFT",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n-b0hrv-u59262.vm.elestio.app",
+            "x-real-ip": "34.63.236.216",
+            "x-forwarded-for": "34.63.236.216",
+            "x-forwarded-proto": "https",
+            "x-forwarded-port": "443",
+            "connection": "close",
+            "content-length": "115",
+            "accept": "application/json, text/plain, */*",
+            "content-type": "application/json",
+            "user-agent": "axios/0.21.4"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "id": "FWI5DTTU0bk21udXNy7k",
+            "name": "Luis Chaiz",
+            "email": "",
+            "phone": "",
+            "message": "So this is not for dog training"
+          },
+          "webhookUrl": "https://n8n-b0hrv-u59262.vm.elestio.app/webhook/ai-agent-home-buyers",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Check Schedule'": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Book A Date'": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Add to Contacts'": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create or update a record in Airtable": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6a5c70f3-dfdf-4f01-afb8-e0f0012522fa",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5e7abb15966c9425356516d6683670dcd6e178c8b1fb231f1b3528ab86b345e4"
+  },
+  "id": "3xfHM3I8HkoaXi3x",
+  "tags": []
+}
