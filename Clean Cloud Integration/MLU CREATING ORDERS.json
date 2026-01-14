@@ -1,0 +1,119 @@
+{
+  "name": "MLU CREATING ORDERS",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Customer id"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -80,
+        0
+      ],
+      "id": "ce6f0dea-60b9-4b35-876c-f53faa072004",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "content": "7fe5f13e5bdc39aa5cf60515defb057a6df99a18"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -16,
+        -240
+      ],
+      "typeVersion": 1,
+      "id": "8dd7496f-467f-49b7-9d50-0d24ef6093c4",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3a96b92b-3b3b-48ff-854e-93f751a88e92",
+              "name": "Customer id",
+              "value": "={{ $json['Customer id'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        128,
+        0
+      ],
+      "id": "6add0073-2f4d-4d71-a082-97d8f536a6c3",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://cleancloudapp.com/api/addOrder",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"api_token\": \"7fe5f13e5bdc39aa5cf60515defb057a6df99a18\",\n  \"customerID\": \"{{ $json['Customer id'] }}\",\n  \"products\": [\n    {\n      \"id\": \"10\",\n      \"price\": \"45\",\n      \"pieces\": \"1\",\n      \"quantity\": \"1\",\n      \"name\": \"Product Name\"\n    },\n    {\n      \"id\": \"9\",\n      \"price\": \"20\",\n      \"pieces\": \"2\",\n      \"quantity\": \"2\",\n      \"name\": \"Second Product\"\n    },\n    {\n      \"id\": \"0\",\n      \"price\": \"10\",\n      \"pieces\": \"1\",\n      \"quantity\": \"3\",\n      \"name\": \"Custom Product Name\"\n    }\n  ],\n  \"discount\": \"1.03\",\n  \"tax\": \"1.08\",\n  \"finalTotal\": \"10.60\",\n  \"pickupDate\": \"1505736000\",\n  \"pickupStart\": \"10am\",\n  \"pickupEnd\": \"11am\",\n  \"delivery\": \"1\",\n  \"deliveryDate\": \"1506686400\",\n  \"deliveryStart\": \"1pm\",\n  \"deliveryEnd\": \"2pm\",\n  \"orderNotes\": \"Notes for the Order\",\n  \"notifyMethod\": \"2\",\n  \"priceListID\": \"\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        352,
+        0
+      ],
+      "id": "fdc53e88-13a7-479f-bd9f-a0244fa76a0d",
+      "name": "Create Clean Cloud Orders"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Create Clean Cloud Orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "28b2f94f-787a-43fc-aede-924212e0289e",
+  "meta": {
+    "instanceId": "5e7abb15966c9425356516d6683670dcd6e178c8b1fb231f1b3528ab86b345e4"
+  },
+  "id": "F32NaAxD5pqmV2vH",
+  "tags": []
+}

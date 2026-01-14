@@ -1,0 +1,786 @@
+{
+  "name": "MLU MAIN AGENT",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sms-response",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        208
+      ],
+      "id": "5eaba356-deeb-480b-9181-b77aa319f104",
+      "name": "Webhook1",
+      "webhookId": "c49263af-76d8-4581-a48e-77c84b674fd6"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=check if this matches any record on airtable\n\nname: {{ $json.body.name }} if matches respond on output the same value on airtable\nphone: {{ $json.body.phone }} if matches respond on output the same value on airtable\ncontact id: {{ $json.body.contact_id }} if matches respond base on the webhook this was given data with if empty return with null or empty\n\nat least one shoud return the same value it should be the exact match saved\n\nand analyze {{ $json.body.message }}\n\nif same values matched the records only output the same record",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=SYSTEM MESSAGE\n\nYou are a validation and classification engine.\n\nPrimary Matching Rules (Airtable):\n\nCompare the following incoming fields against Airtable records using exact matches only:\n\nname ← {{ $json.body.name }}\n\nphone ← {{ $json.body.phone }}\n\ncontact_id ← {{ $json.body.contact_id }}\n\nAt least one of the above fields must match exactly.\n\nIf multiple records match, return only the single matching record.\n\nIf a field is missing or empty in the webhook, return null for that field.\n\nDo not infer, guess, normalize, or partially match values.\n\nMessage Analysis (Service Rating Detection):\n\nAnalyze {{ $json.body.message }}.\n\nIf the message contains only one of the following values:\n\nif 4 or 5 = output good\nif 1,2 or 3 = output bad\n\n1, 2, 3, 4, or 5\nthen treat it as a service rating.\n\nAny other content is treated as a non-rating message.\n\nOutput Rules (STRICT):\n\nYou must return ONLY the value of {{ $json.body.message }}.\n\nDo not explain.\n\nDo not summarize.\n\nDo not add text.\n\nDo not add formatting.\n\nIf {{ $json.body.message }} is empty or null, return an empty string \"\".\n\nThe output must be placed exactly in the field named message.\n\nNo additional keys, metadata, or commentary are allowed in the output."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        432,
+        208
+      ],
+      "id": "4cf25a9c-9c01-40f0-b001-6dbd6a77c97b",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-5-20250929",
+          "cachedResultName": "Claude Sonnet 4.5"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        336,
+        416
+      ],
+      "id": "00dbb462-dd91-4ccf-b9bc-351bb9a7e3ba",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "y1IauLD0d2pilCEB",
+          "name": "SA-SEO"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Use the tool to think about something or making humanely responses. It will not obtain new information or change the database, but just append the thought to the log. Use it when complex reasoning or some cache memory is needed."
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        576,
+        416
+      ],
+      "id": "9f04112e-be4f-4c33-b992-e67d65259070",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "Use this to save record an to respond more humanely to responses"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        432,
+        416
+      ],
+      "id": "d162c3f1-a149-4d38-9807-05adec5e9121",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get a record in Airtable if it matches any requested matched don't return anything for back to the main node just tell the ai if everything matches or not",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appODuUOQ7SMEpGTS",
+          "mode": "list",
+          "cachedResultName": "Hotel Laundy Content Source",
+          "cachedResultUrl": "https://airtable.com/appODuUOQ7SMEpGTS"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblJwicrCGKpxCSsc",
+          "mode": "list",
+          "cachedResultName": "Data",
+          "cachedResultUrl": "https://airtable.com/appODuUOQ7SMEpGTS/tblJwicrCGKpxCSsc"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        496,
+        576
+      ],
+      "id": "ae39bbff-f7d2-4d08-a625-26fa9b81ba69",
+      "name": "Search records in Airtable",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "KeKFjHDz1983qYAU",
+          "name": "SEOAgent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"respond to human context\": \"respond to user human prompt\",\n  \"record_rating\": \"rating\",\n  \"message\": \"recorded {{ $json.body.message }}\",\n  \"matched records\": {\n    \"name\": \"name\",\n    \"phone\": \"phone\",\n    \"contact id\": \"contact id\",\n    \"tags\": \"tags\"\n  }\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        704,
+        416
+      ],
+      "id": "58bdd16f-93f9-471a-bc97-9982e52ed831",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d746b9b2-1101-4944-bbb1-49512d1914a4",
+              "name": "body.name",
+              "value": "={{ $json.body.name }}",
+              "type": "string"
+            },
+            {
+              "id": "f1a95588-4ef8-4eae-b4bb-50260a6f6046",
+              "name": "body.email",
+              "value": "={{ $json.body.email }}",
+              "type": "string"
+            },
+            {
+              "id": "56d0b6ae-85c9-4e6b-81bb-8686b90e3a89",
+              "name": "body.phone",
+              "value": "={{ $json.body.phone }}",
+              "type": "string"
+            },
+            {
+              "id": "1f9e43cb-466b-443e-ae29-efe1189ceea9",
+              "name": "body.message",
+              "value": "={{ $json.body.message }}",
+              "type": "string"
+            },
+            {
+              "id": "1dd440b7-8f51-4959-90fd-ce0ecc44c556",
+              "name": "body.contact_id",
+              "value": "={{ $json.body.contact_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        208
+      ],
+      "id": "154f83da-78c1-4018-a2de-eeb932d88df2",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1600,
+        64
+      ],
+      "id": "9e927b93-c563-4879-85b5-53324977efe2",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output['matched records'].tags }}",
+                    "rightValue": "laundry card",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "936a9f39-199b-4fcd-ad49-5f6dd8e68dd5"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Laundry Card"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "e13d07a2-ce04-42d6-8e3d-689d3c441247",
+                    "leftValue": "={{ $json.output.message }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Day to Day Conversation and Inquiries "
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "efd9369b-8e85-4d3d-903b-b70d54ed349c",
+                    "leftValue": "={{ $json.output.record_rating }}",
+                    "rightValue": "good",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Service Rating Follow-Up"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "422b9f3f-58c4-414f-9386-7831fbe2fe47",
+                    "leftValue": "={{ $json.output.record_rating }}",
+                    "rightValue": "bad",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Service Rating Follow-Up"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        896,
+        240
+      ],
+      "id": "f5acb355-6dda-4789-9afc-42fe04f695ff",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": "={{ $('Webhook1').item.json.body.id }}"
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1600,
+        256
+      ],
+      "id": "2e7dc937-3741-48b7-b301-539be2cc5790",
+      "name": "Respond to Webhook2"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "K8ob1fZ3DWs15byD",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/K8ob1fZ3DWs15byD",
+          "cachedResultName": "LAUNDRY CARD MLU"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Edit Fields').item.json.body.name }}",
+            "email": "={{ $('Edit Fields').item.json.body.email }}",
+            "phone": "={{ $('Edit Fields').item.json.body.phone }}",
+            "message": "={{ $('Edit Fields').item.json.body.message }}",
+            "contact Id": "={{ $('Edit Fields').item.json.body.contact_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "contact Id",
+              "displayName": "contact Id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1360,
+        64
+      ],
+      "id": "6f69c68c-c770-4c68-bf4c-64f58eaf04d3",
+      "name": "Call 'LAUNDRY CARD MLU'"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "1I1PfF5XI36WNY3x",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/1I1PfF5XI36WNY3x",
+          "cachedResultName": "MLU DAY TO DAY"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Edit Fields').item.json.body.name }}",
+            "email": "={{ $('Edit Fields').item.json.body.email }}",
+            "phone": "={{ $('Edit Fields').item.json.body.phone }}",
+            "message": "={{ $('Edit Fields').item.json.body.message }}",
+            "contact id": "={{ $('Edit Fields').item.json.body.contact_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "contact id",
+              "displayName": "contact id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1360,
+        256
+      ],
+      "id": "8b88db79-cc2b-405a-a8ef-f78d596e9491",
+      "name": "Call 'MLU DAY TO DAY'"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "S27AMC0B9YXk3EKt",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/S27AMC0B9YXk3EKt",
+          "cachedResultName": "MLU RATING NEW USERS"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Edit Fields').item.json.body.name }}",
+            "Email": "={{ $('Edit Fields').item.json.body.email }}",
+            "Phone": "={{ $('Edit Fields').item.json.body.phone }}",
+            "message": "={{ $('Edit Fields').item.json.body.message }}",
+            "contact id": "={{ $('Edit Fields').item.json.body.contact_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "contact id",
+              "displayName": "contact id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1360,
+        464
+      ],
+      "id": "5d2966ee-d652-42a4-9a71-a8420d8a4bed",
+      "name": "Call 'MLU RATING NEW USERS'"
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": "={{ $('Webhook1').item.json.body.id }}"
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1600,
+        464
+      ],
+      "id": "aaffbd53-afaf-4d75-ad20-f7f36c35e359",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {
+    "Webhook1": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n-b0hrv-u59262.vm.elestio.app",
+            "x-real-ip": "34.55.112.60",
+            "x-forwarded-for": "34.55.112.60",
+            "x-forwarded-proto": "https",
+            "x-forwarded-port": "443",
+            "connection": "close",
+            "content-length": "148",
+            "accept": "application/json, text/plain, */*",
+            "content-type": "application/json",
+            "user-agent": "axios/0.21.4"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "contact_id": "L7a4A3mpmxebeYsjuaHn",
+            "name": "Oscar VASQUEZ",
+            "email": "OscarsMyRealtor@gmail.com",
+            "phone": "(805) 290-6044",
+            "message": "Do you pick up"
+          },
+          "webhookUrl": "https://n8n-b0hrv-u59262.vm.elestio.app/webhook/sms-response",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records in Airtable": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Call 'LAUNDRY CARD MLU'",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call 'MLU DAY TO DAY'",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call 'MLU RATING NEW USERS'",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call 'MLU RATING NEW USERS'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'LAUNDRY CARD MLU'": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'MLU DAY TO DAY'": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'MLU RATING NEW USERS'": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0b0113e4-214e-42a6-8b70-f5b32c610566",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5e7abb15966c9425356516d6683670dcd6e178c8b1fb231f1b3528ab86b345e4"
+  },
+  "id": "wUKx9wxci4vmY6ST",
+  "tags": []
+}
