@@ -1,0 +1,458 @@
+{
+  "name": "AI Agent Regulator",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Name"
+            },
+            {
+              "name": "Phone",
+              "type": "any"
+            },
+            {
+              "name": "Email",
+              "type": "any"
+            },
+            {
+              "name": "Source",
+              "type": "any"
+            },
+            {
+              "name": "Date",
+              "type": "any"
+            },
+            {
+              "name": "opener",
+              "type": "any"
+            },
+            {
+              "name": "setter"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -192,
+        16
+      ],
+      "id": "d702caa4-550f-4474-856c-120414edf086",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Here are the Information you need:\n\nName : {{ $json.Name }}\nPhone: {{ $json.Phone }}\nEmail: {{ $json.Email }}\nSource: {{ $json.Source }}\nopener: {{ $json.opener }}\nSetter: {{ $json.setter }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Use the following format:\n\n---\n\n🚀 NEW SETTING BOOKED\n\n👤 Name: Name\n📧 Email: Email  \n📱 Phone: Phone\n\n📊 Source: Source\n\n👨‍💻 Setter: Setter \n🤝 Opener: Opener\n\n\n---\n\nImportant rules for the Source field:\n\n1️⃣ If the lead comes from Ads  \n→ Source: Paid Ads\n\n2️⃣ If the lead books automatically through the organic Blueprint funnel (Instagram / TikTok etc.)  \n→ Source: Organic Booking\n\n3️⃣ If the lead comes through a Community Member (Clipper / Affiliate)  \n→ Source: Calendar of the Setter  \nAND show the Opener name from the calendar form.\n\n4 If lead comes from organic, it's okay to remove setter and opener\n\n5. No extra chats just output\n\n6. If Setter and Opener is Empty or Null, leave out from output\n\n\nThis is important so we can always see where the lead actually came from."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        304,
+        16
+      ],
+      "id": "af79cfb0-19c1-483a-8486-abca8650f8fc",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        32,
+        240
+      ],
+      "id": "e208ff92-2593-4966-8f9b-61eba14936d6",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "pBtyo4pNOz2sNXwW",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=Remember the Name  {{ $json.Name }} and Email {{ $json.Email }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        160,
+        240
+      ],
+      "id": "0d2a3eb8-c02e-4b8f-b0cc-dfe68285d917",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        288,
+        240
+      ],
+      "id": "380cb4f7-cda5-4eda-adef-7b6f071b7772",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "search",
+        "query": "={{ $json.output.Name }}",
+        "options": {
+          "searchChannel": [
+            "kc--setting-buchungen"
+          ]
+        }
+      },
+      "id": "9b5dd120-9b01-4132-8b2a-fc597b728d97",
+      "name": "Search for Existing Thread",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        704,
+        16
+      ],
+      "webhookId": "2e1bc69f-1e08-495e-9bd8-6c96c3f52ba9",
+      "alwaysOutputData": true,
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "SfGZ3c8Wr4lxfv4W",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "id-1",
+              "leftValue": "={{ $json.score }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            },
+            {
+              "id": "15156699-7236-416c-a3fd-a91967c6b438",
+              "leftValue": "={{ $json.score }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "d792628f-e61e-4c9f-8f72-444950a98b4c",
+      "name": "Thread Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        928,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "C08SURW874G"
+        },
+        "text": "={{ $('AI Agent').item.json.output.Output }}",
+        "otherOptions": {
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('Search for Existing Thread').item.json.thread_ts || $('Search for Existing Thread').item.json.ts }}"
+            }
+          }
+        }
+      },
+      "id": "fb136c75-f22d-4f81-82b2-a3471a659fa1",
+      "name": "Reply to Thread",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        1152,
+        -80
+      ],
+      "webhookId": "a9591c4c-5b94-4dfd-bbb8-edbf1efbcaf8",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "SfGZ3c8Wr4lxfv4W",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "C08SURW874G"
+        },
+        "text": "={{ $('AI Agent').item.json.output.Output }}",
+        "otherOptions": {}
+      },
+      "id": "5ba62c6f-8798-4b3a-ba41-042d222a68c0",
+      "name": "Send New Message",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        1152,
+        112
+      ],
+      "webhookId": "cd76a527-69ac-4d41-b0fa-2ac5b5e70ab8",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "SfGZ3c8Wr4lxfv4W",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7eedd908-1ca2-4187-9032-c911cfdda671",
+              "name": "Name",
+              "value": "={{ $json.Name }}",
+              "type": "string"
+            },
+            {
+              "id": "458856a6-9d4b-4a51-a60b-bd983b0eda57",
+              "name": "Email",
+              "value": "={{ $json.Email }}",
+              "type": "string"
+            },
+            {
+              "id": "86096ba0-7616-4335-93e9-6a5f0d1f58b0",
+              "name": "Phone",
+              "value": "={{ $json.Phone }}",
+              "type": "string"
+            },
+            {
+              "id": "02d20029-a2f5-4087-9345-086c9239a4a8",
+              "name": "Source",
+              "value": "={{ $json.Source }}",
+              "type": "string"
+            },
+            {
+              "id": "0929ccb3-88aa-4c26-b3aa-b4ad22b96323",
+              "name": "Date",
+              "value": "={{ $json.Date }}",
+              "type": "string"
+            },
+            {
+              "id": "8c54ae99-83f6-4007-a7d6-7df0e5bf4259",
+              "name": "opener",
+              "value": "={{ $json.opener }}",
+              "type": "string"
+            },
+            {
+              "id": "d0f78add-d9ec-452e-bc50-f195a9b38e1a",
+              "name": "setter",
+              "value": "={{ $json.setter }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        16,
+        16
+      ],
+      "id": "8240beac-cdbe-4cb4-b1a0-0b5b7eba026d",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"Output\": \"Output\",\n\t\"Name\": \"Name\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        480,
+        224
+      ],
+      "id": "28fe30d3-1719-4c87-b28c-eb9cf13fdcd2",
+      "name": "Structured Output Parser"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "Name": "Onur Yoldas",
+          "Phone": "+49 176 62893773",
+          "Email": "onuryoldas.oy@gmail.com",
+          "Source": "Paid Ads null",
+          "Date": "+49 15563 815835",
+          "opener": "null",
+          "setter": "null"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Search for Existing Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search for Existing Thread": {
+      "main": [
+        [
+          {
+            "node": "Thread Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Thread Exists?": {
+      "main": [
+        [
+          {
+            "node": "Reply to Thread",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send New Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "74152e10-6fb9-47e8-a3db-ff203491a496",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4fbaace3ac72852af5561fc6af9694adddedab2a3813f8c9dd869456b6275acb"
+  },
+  "id": "o8ehBQPfwMb9eRPN",
+  "tags": []
+}
