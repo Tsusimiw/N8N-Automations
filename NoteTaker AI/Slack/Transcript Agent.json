@@ -1,0 +1,256 @@
+{
+  "name": "Transcript Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-transcript",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -432,
+        144
+      ],
+      "id": "34aef7d6-c23a-464b-b913-6356c19e6463",
+      "name": "Webhook",
+      "webhookId": "c0265c92-0739-4da0-ade6-4eefb13a5122"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.fathom.ai/external/v1/recordings/{{ $json.body.recording_id }}/summary",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Api-Key",
+              "value": "vjlk9OcD2defqULkBgxFJg.lL4W66nFtyksiLHS4wyuqo8tes4l6tE44gh1sxRhqD4"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -208,
+        144
+      ],
+      "id": "6a48ef18-fed6-4d99-8359-2764f8760b0d",
+      "name": "Recording ID"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Can you summarize this text  {{ $json.summary.markdown_formatted }}\n\nOnly produce the output of the summarize no more extra text or questions, only the output",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are Joshua's Helpful Assistant and you summarize the transcripted text, "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        16,
+        144
+      ],
+      "id": "94cbca5d-2793-4c6d-b8dc-d3d15d73e1ee",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -16,
+        384
+      ],
+      "id": "29eda4d0-f49d-48de-bce2-c2e4c27046fe",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "pBtyo4pNOz2sNXwW",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"Name\": \"Joshua and Paul\",\n\t\"Transcripts\": \"Summarized Transcript\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        160,
+        368
+      ],
+      "id": "cae552c9-4add-428f-baa0-67db4c684668",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0ALTA3KT5F",
+          "mode": "list",
+          "cachedResultName": "sales-recording"
+        },
+        "text": "={{ $json.output.Name }}\n\n{{ $json.output.Transcripts }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        368,
+        144
+      ],
+      "id": "29131d1a-8292-4a57-b910-f13563c92637",
+      "name": "Send a message",
+      "webhookId": "f31bfdcd-2c99-422f-b077-35540c20149d",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "SfGZ3c8Wr4lxfv4W",
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "kokoumejoshua.app.n8n.cloud",
+            "user-agent": "axios/1.13.5",
+            "content-length": "178",
+            "accept": "application/json,text/html,application/xhtml+xml,application/xml,text/*;q=0.9, image/*;q=0.8, */*;q=0.7",
+            "accept-encoding": "gzip, br",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "51.116.119.76",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "DE",
+            "cf-ray": "9dba89f048513722-FRA",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "webhook-signature": "test-signature",
+            "x-forwarded-for": "51.116.119.76, 162.158.111.101",
+            "x-forwarded-host": "kokoumejoshua.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-113-7f587957c7-jnj75",
+            "x-is-trusted": "yes",
+            "x-real-ip": "51.116.119.76"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "recording_id": "129645657",
+            "type": "meeting_content_ready",
+            "url": "https://fathom.video/calls/600273664",
+            "share_url": "https://fathom.video/share/qEmY-D4EYqpLLccDWi-2ycmxxu6J9yEJ"
+          },
+          "webhookUrl": "https://kokoumejoshua.app.n8n.cloud/webhook/ai-transcript",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Recording ID": [
+      {
+        "json": {
+          "summary": {
+            "template_name": "Chronological",
+            "markdown_formatted": "### [Introductions and small talk @ 0:00](https://fathom.video/share/qEmY-D4EYqpLLccDWi-2ycmxxu6J9yEJ?tab=summary&timestamp=0)\n\nJoshua and Paul greet each other and discuss the weather and recent events in the area. They make casual conversation about the current situation.\n\n### [Discussing past experiences and mindset @ 1:03](https://fathom.video/share/qEmY-D4EYqpLLccDWi-2ycmxxu6J9yEJ?tab=summary&timestamp=63)\n\nPaul expresses his admiration for Joshua's story and the journey of one of Joshua's clients, Fabio. They discuss how mindset and taking bold action can lead to life-changing outcomes, even when facing skepticism from one's social circle.\n\n### [Comprehensive support and training program @ 8:52](https://fathom.video/share/qEmY-D4EYqpLLccDWi-2ycmxxu6J9yEJ?tab=summary&timestamp=532)\n\nJoshua outlines the three key pillars of his Kokoume Consulting Mentorship program:\n\n1.  24/7 WhatsApp support and weekly 1-on-1 coaching calls\n2.  Step-by-step video course covering mindset, social media, AI/content, and sales\n3.  Access to the Kokoume Consulting community for collaboration, accountability, and group calls\n\n### [Guaranteed results and financial commitment @ 21:20](https://fathom.video/share/qEmY-D4EYqpLLccDWi-2ycmxxu6J9yEJ?tab=summary&timestamp=1280)\n\nJoshua explains that most clients earn their first 750-1500 EUR in commissions within 4-8 weeks. He also provides a guarantee that clients will earn 5,000 EUR net per month for 3 consecutive months within the first 12 months of the 1-year program. The program costs 9,800 EUR total, but the first 6 months are covered by a partner company, allowing clients to get started with no upfront investment.\n\n### [Addressing concerns and making a decision @ 26:50](https://fathom.video/share/qEmY-D4EYqpLLccDWi-2ycmxxu6J9yEJ?tab=summary&timestamp=1610)\n\nPaul expresses hesitation about the financial commitment, given his existing responsibilities. Joshua encourages him to consider the mindset and decision-making process of his \"future successful self\" to overcome his fears. Ultimately, Paul decides he needs more time to think it over carefully before committing.\n"
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Recording ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recording ID": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "d7df6e8d-f7b0-4c38-a719-4df7912e2c9a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4fbaace3ac72852af5561fc6af9694adddedab2a3813f8c9dd869456b6275acb"
+  },
+  "id": "QeNSqJT2imdiX6Vv",
+  "tags": []
+}
