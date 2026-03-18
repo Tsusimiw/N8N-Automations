@@ -1,0 +1,267 @@
+{
+  "name": "Organic",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "organic-closed",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0d30bacb-8548-4e3a-9bac-fb96f6285c8f",
+      "name": "Webhook",
+      "webhookId": "5591b638-4850-4966-a97e-d7fc01a2f6fe"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4fb833d2-a059-42fb-9f0a-d5b4ce12cf49",
+              "name": "body.name",
+              "value": "={{ $json.body.name }}",
+              "type": "string"
+            },
+            {
+              "id": "60f5ef56-29ae-4413-a9c7-2de71876cf44",
+              "name": "body.email",
+              "value": "={{ $json.body.email }}",
+              "type": "string"
+            },
+            {
+              "id": "7cea7b3f-ed43-42db-ad7a-d14392b4d4e7",
+              "name": "body.phone",
+              "value": "={{ $json.body.phone }}",
+              "type": "string"
+            },
+            {
+              "id": "25eafaad-6cd0-48c1-99f1-df7f9d2ed3f1",
+              "name": "=body.source",
+              "value": "={{ $json.body.source }}",
+              "type": "string"
+            },
+            {
+              "id": "de71fa74-7826-476c-9e1a-db6bb914cb0e",
+              "name": "body.setter",
+              "value": "={{ $json.body.setter }}",
+              "type": "string"
+            },
+            {
+              "id": "c449e471-724d-4769-87c1-10ac0f1f1ba3",
+              "name": "body.closer",
+              "value": "={{ $json.body.user }}",
+              "type": "string"
+            },
+            {
+              "id": "7f7a87d7-e92b-46c8-9484-8b810759a647",
+              "name": "body.appointment",
+              "value": "={{ $json.body.appointment }}",
+              "type": "string"
+            },
+            {
+              "id": "cdf6caed-06ab-4079-ab08-9c16ca86d0b2",
+              "name": "body.pipeline",
+              "value": "={{ $json.body.pipeline }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "4812d6b8-dc32-4845-b1c2-e99c6a93b714",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "jV67bDj4uF5W522R",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/jV67bDj4uF5W522R",
+          "cachedResultName": "AI Agent Regulator Closing"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.body.name }}",
+            "Source": "={{ $json.body.source }}",
+            "Number": "={{ $json.body.phone }}",
+            "Pipeline Stage": "={{ $json.body.pipeline }}",
+            "Closer": "={{ $json.body.closer }}",
+            "email": "={{ $json.body.email }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Source",
+              "displayName": "Source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Number",
+              "displayName": "Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Pipeline Stage",
+              "displayName": "Pipeline Stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Closer",
+              "displayName": "Closer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "b675068c-2d8b-4d31-984c-0bae23c64ed4",
+      "name": "Call 'AI Agent Regulator Closing'"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "kokoumejoshua.app.n8n.cloud",
+            "user-agent": "axios/1.13.2",
+            "content-length": "248",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, br",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "34.27.71.98",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "US",
+            "cf-ray": "9d7c9c16c9f21d04-ORD",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "traceparent": "00-34e135ab569be890ff330d3ab4d22c3a-aaabc979da00cb85-01",
+            "x-forwarded-for": "34.27.71.98, 108.162.216.162",
+            "x-forwarded-host": "kokoumejoshua.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-113-7f587957c7-vd7f6",
+            "x-is-trusted": "yes",
+            "x-real-ip": "34.27.71.98"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "id": "tJx631IlK2l8pCnuniPE",
+            "name": "Muhlis Selman  Cirak",
+            "email": "muhlisvufak@gmail.com",
+            "phone": "+49 178 3402419",
+            "source": "Kennenlern-Gespräch: KC (Nick/Organic) 👋🏽",
+            "setter": "null",
+            "closer": "null",
+            "appointment": "null",
+            "pipeline": "null"
+          },
+          "webhookUrl": "https://kokoumejoshua.app.n8n.cloud/webhook/organic-closed",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Call 'AI Agent Regulator Closing'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "52374042-66ad-431c-8e1f-23d703189934",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4fbaace3ac72852af5561fc6af9694adddedab2a3813f8c9dd869456b6275acb"
+  },
+  "id": "rK1twx5TTuPazQAi",
+  "tags": []
+}

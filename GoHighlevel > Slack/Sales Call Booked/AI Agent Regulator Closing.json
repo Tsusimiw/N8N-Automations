@@ -1,0 +1,421 @@
+{
+  "name": "AI Agent Regulator Closing",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Here are the Information you need:\n\nName : {{ $json.Name }}\nPhone: {{ $json.Phone }}\nEmail: {{ $json.Email }}\nSource: {{ $json.Source }}\ncloser: {{ $json.Closer }}\nPipeline Stage: {{ $json['Pipeline Stage'] }}",
+        "options": {
+          "systemMessage": "=Use the following format:\n\n---\n\n🚀 NEW CLOSING IN APPOINTMENT\n\n👤 Name: Name\n📧 Email: Email  \n📱 Phone: Phone\n\n📊 Source: Source\n📊 Pipeline Stage: Stage\n\n👨‍💻 Setter: Setter \n🤝 Opener: Opener\n\n\n---\n\nImportant rules for the Source field:\n\n1️⃣ If the lead comes from Ads  \n→ Source: Paid Ads\n\n2️⃣ If the lead books automatically through the organic Blueprint funnel (Instagram / TikTok etc.)  \n→ Source: Organic Booking\n\n3️⃣ If lead comes from organic, it's okay to remove setter and opener\n\n4. No extra chats just output\n\n5. If Setter and Opener is Empty or Null, leave out from output\n\n\nThis is important so we can always see where the lead actually came from."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        304,
+        16
+      ],
+      "id": "5f69648e-790e-47d2-ba2d-cfba14f8f434",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        32,
+        240
+      ],
+      "id": "49a4ccf6-8740-49b8-a007-801d2554c9e8",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "pBtyo4pNOz2sNXwW",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=Remember the Name  {{ $json.Name }} and Email {{ $json.Email }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        160,
+        240
+      ],
+      "id": "f576a898-bffa-4351-9661-b6033091b6d7",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        288,
+        240
+      ],
+      "id": "43ee1fc2-9dfe-4750-a4b8-4fc728c1559f",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "search",
+        "query": "={{ $('Edit Fields').item.json.Name }}",
+        "options": {
+          "searchChannel": [
+            "kc-closing-buchungen"
+          ]
+        }
+      },
+      "id": "a13e435a-3864-4b8f-b32e-fcb5ac12edef",
+      "name": "Search for Existing Thread",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        704,
+        16
+      ],
+      "webhookId": "f0a9e266-1fb1-461f-9165-af220059f898",
+      "alwaysOutputData": true,
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "SfGZ3c8Wr4lxfv4W",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "id-1",
+              "leftValue": "={{ $json.score }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            },
+            {
+              "id": "15156699-7236-416c-a3fd-a91967c6b438",
+              "leftValue": "={{ $json.score }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "637a8b26-a177-4a45-9a0d-10898c77630c",
+      "name": "Thread Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        928,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AH4PJT74J",
+          "mode": "list",
+          "cachedResultName": "kc-closing-buchungen"
+        },
+        "text": "={{ $('AI Agent').item.json.output }}",
+        "otherOptions": {
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('Search for Existing Thread').item.json.thread_ts || $('Search for Existing Thread').item.json.ts }}"
+            }
+          }
+        }
+      },
+      "id": "2707471c-2238-4dfd-8c7a-980fd177efb9",
+      "name": "Reply to Thread",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        1152,
+        -80
+      ],
+      "webhookId": "9897615e-fbe1-43de-b2f6-84c52d92ed46",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "SfGZ3c8Wr4lxfv4W",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AH4PJT74J",
+          "mode": "list",
+          "cachedResultName": "kc-closing-buchungen"
+        },
+        "text": "={{ $('AI Agent').item.json.output }}",
+        "otherOptions": {}
+      },
+      "id": "dc542540-6f61-42fe-a0ef-d848a19cd3d1",
+      "name": "Send New Message",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        1152,
+        112
+      ],
+      "webhookId": "1ed9a9e2-2346-40f6-8d50-da762ce92873",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "SfGZ3c8Wr4lxfv4W",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7eedd908-1ca2-4187-9032-c911cfdda671",
+              "name": "Name",
+              "value": "={{ $json.Name }}",
+              "type": "string"
+            },
+            {
+              "id": "458856a6-9d4b-4a51-a60b-bd983b0eda57",
+              "name": "Email",
+              "value": "={{ $json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "86096ba0-7616-4335-93e9-6a5f0d1f58b0",
+              "name": "Phone",
+              "value": "={{ $json.Number }}",
+              "type": "string"
+            },
+            {
+              "id": "02d20029-a2f5-4087-9345-086c9239a4a8",
+              "name": "Source",
+              "value": "={{ $json.Source }}",
+              "type": "string"
+            },
+            {
+              "id": "8c54ae99-83f6-4007-a7d6-7df0e5bf4259",
+              "name": "Closer",
+              "value": "={{ $json.Closer }}",
+              "type": "string"
+            },
+            {
+              "id": "f5c0f48f-6298-4bf2-bc35-a53be4933ba0",
+              "name": "Pipeline Stage",
+              "value": "={{ $json['Pipeline Stage'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        16,
+        16
+      ],
+      "id": "93bf58de-8090-44c8-acc5-b51cc93f9e3c",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Name"
+            },
+            {
+              "name": "Source"
+            },
+            {
+              "name": "Number",
+              "type": "any"
+            },
+            {
+              "name": "Pipeline Stage"
+            },
+            {
+              "name": "Closer"
+            },
+            {
+              "name": "email"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -192,
+        16
+      ],
+      "id": "9a25af7b-2399-468a-b66d-52ed06d12ffb",
+      "name": "When Executed by Another Workflow"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "Name": "Laurin Buchholz",
+          "Source": "Organic - Blueprint",
+          "Number": "+49 1520 4376434",
+          "Pipeline Stage": "null",
+          "Closer": "null",
+          "email": "ljbuchholz2008@gmail.com"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Search for Existing Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search for Existing Thread": {
+      "main": [
+        [
+          {
+            "node": "Thread Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Thread Exists?": {
+      "main": [
+        [
+          {
+            "node": "Reply to Thread",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send New Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "13b81340-8e97-47a7-8e8e-4a287d7e4cd5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4fbaace3ac72852af5561fc6af9694adddedab2a3813f8c9dd869456b6275acb"
+  },
+  "id": "jV67bDj4uF5W522R",
+  "tags": []
+}
