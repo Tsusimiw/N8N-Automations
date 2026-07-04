@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday, My Love 💖</title>
+<style>
+  :root {
+    --pink: #ff8fc7;
+    --pink-soft: #ffd3e8;
+    --pink-deep: #f65fa9;
+    --violet: #9b5de5;
+    --violet-deep: #6c2bd9;
+    --violet-soft: #e6d9ff;
+    --cream: #fff7fb;
+    --ink: #4a2b5f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(160deg, #ffe3f1 0%, #f3e3ff 45%, #e6d9ff 100%);
+    color: var(--ink);
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* ---------- Floating hearts background ---------- */
+  .hearts-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .heart {
+    position: absolute;
+    bottom: -8vh;
+    animation: floatUp linear infinite;
+    opacity: 0.55;
+    user-select: none;
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(0) rotate(-8deg) scale(1); opacity: 0; }
+    10%  { opacity: 0.6; }
+    50%  { transform: translateY(-55vh) rotate(8deg) scale(1.1); }
+    100% { transform: translateY(-115vh) rotate(-6deg) scale(0.9); opacity: 0; }
+  }
+
+  main { position: relative; z-index: 1; }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem 1.25rem;
+  }
+  .hero .crown {
+    font-size: 3.2rem;
+    animation: bounce 2.2s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+  .hero h1 {
+    font-size: clamp(2.4rem, 7vw, 5rem);
+    line-height: 1.12;
+    margin: 1rem 0 0.6rem;
+    background: linear-gradient(90deg, var(--pink-deep), var(--violet), var(--pink-deep));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shimmer 5s linear infinite;
+  }
+  @keyframes shimmer {
+    to { background-position: 200% center; }
+  }
+  .hero .subtitle {
+    font-size: clamp(1.05rem, 2.6vw, 1.4rem);
+    color: #7a4d9e;
+    max-width: 34rem;
+    margin-bottom: 2.2rem;
+  }
+  .btn {
+    border: none;
+    cursor: pointer;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+    padding: 1rem 2.4rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--pink-deep), var(--violet-deep));
+    box-shadow: 0 10px 26px rgba(155, 93, 229, 0.4);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .btn:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 14px 32px rgba(246, 95, 169, 0.5); }
+  .btn:active { transform: scale(0.97); }
+  .scroll-hint {
+    margin-top: 3rem;
+    font-size: 1.6rem;
+    animation: bounce 1.8s ease-in-out infinite;
+    opacity: 0.7;
+  }
+
+  /* ---------- Sections ---------- */
+  section {
+    max-width: 62rem;
+    margin: 0 auto;
+    padding: 4.5rem 1.25rem;
+  }
+  .section-title {
+    text-align: center;
+    font-size: clamp(1.8rem, 4.5vw, 2.6rem);
+    margin-bottom: 0.5rem;
+    color: var(--violet-deep);
+  }
+  .section-sub {
+    text-align: center;
+    color: #a06cc4;
+    margin-bottom: 2.5rem;
+  }
+
+  /* ---------- Love letter ---------- */
+  .letter {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(6px);
+    border: 2px dashed var(--pink);
+    border-radius: 24px;
+    padding: clamp(1.5rem, 4vw, 3rem);
+    font-size: 1.12rem;
+    line-height: 1.85;
+    box-shadow: 0 12px 40px rgba(246, 95, 169, 0.18);
+  }
+  .letter p + p { margin-top: 1rem; }
+  .letter .signature {
+    margin-top: 1.6rem;
+    font-style: italic;
+    font-weight: 700;
+    color: var(--pink-deep);
+    text-align: right;
+  }
+
+  /* ---------- Reasons cards ---------- */
+  .reasons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1.2rem;
+  }
+  .reason {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 20px;
+    padding: 1.6rem 1.4rem;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(155, 93, 229, 0.15);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .reason:hover {
+    transform: translateY(-6px) rotate(-1deg);
+    box-shadow: 0 14px 34px rgba(246, 95, 169, 0.28);
+  }
+  .reason .emoji { font-size: 2.4rem; display: block; margin-bottom: 0.7rem; }
+  .reason h3 { color: var(--violet-deep); margin-bottom: 0.4rem; font-size: 1.1rem; }
+  .reason p { color: #7a5a94; font-size: 0.95rem; line-height: 1.5; }
+
+  /* ---------- Gallery ---------- */
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.3rem;
+  }
+  .polaroid {
+    background: #fff;
+    border-radius: 14px;
+    padding: 0.8rem 0.8rem 2.4rem;
+    box-shadow: 0 10px 28px rgba(108, 43, 217, 0.18);
+    transform: rotate(var(--tilt, -2deg));
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    position: relative;
+  }
+  .polaroid:nth-child(even) { --tilt: 2deg; }
+  .polaroid:hover {
+    transform: rotate(0deg) scale(1.04);
+    box-shadow: 0 16px 40px rgba(246, 95, 169, 0.3);
+    z-index: 2;
+  }
+  .polaroid img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+  }
+  .polaroid .placeholder {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 8px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 2.6rem;
+    color: #fff;
+    background: linear-gradient(135deg, var(--pink), var(--violet));
+  }
+  .polaroid .placeholder small {
+    font-size: 0.78rem;
+    opacity: 0.9;
+    padding: 0 1rem;
+    text-align: center;
+  }
+  .polaroid.empty img { display: none; }
+  .polaroid.empty .placeholder { display: flex; }
+  .polaroid .caption {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 0.55rem;
+    text-align: center;
+    font-size: 0.95rem;
+    color: #8a63a8;
+    font-style: italic;
+  }
+
+  /* ---------- Wish / footer ---------- */
+  .wish {
+    text-align: center;
+    padding-bottom: 6rem;
+  }
+  .wish .cake { font-size: 4rem; animation: bounce 2.4s ease-in-out infinite; }
+  .wish h2 {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    color: var(--violet-deep);
+    margin: 1rem 0;
+  }
+  .wish p { color: #8a63a8; max-width: 32rem; margin: 0 auto 2rem; line-height: 1.7; }
+
+  footer {
+    text-align: center;
+    padding: 2rem 1rem 3rem;
+    color: #a06cc4;
+    font-size: 0.95rem;
+  }
+
+  /* ---------- Confetti ---------- */
+  .confetti-piece {
+    position: fixed;
+    top: -4vh;
+    z-index: 50;
+    pointer-events: none;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    to { transform: translateY(115vh) rotate(720deg); opacity: 0.9; }
+  }
+
+  /* ---------- Reveal on scroll (hidden state only applies when JS is running) ---------- */
+  .js .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .js .reveal.visible { opacity: 1; transform: translateY(0); }
+
+</style>
+</head>
+<body>
+
+<div class="hearts-bg" id="heartsBg"></div>
+
+<main>
+  <!-- HERO -->
+  <div class="hero">
+    <div class="crown">👑</div>
+    <h1>Happy Birthday,<br>My Love! 🎂</h1>
+    <p class="subtitle">Happy 22th to the most pretty and beautiful princess of mine — today the whole world celebrates you, my queen. 👑💕</p>
+    <button class="btn" id="celebrateBtn">🎉 Click for a surprise!</button>
+    <div class="scroll-hint">⌄</div>
+  </div>
+
+  <!-- LOVE LETTER -->
+  <section class="reveal">
+    <h2 class="section-title">A Little Letter For You 💌</h2>
+    <p class="section-sub">from my heart to yours</p>
+    <div class="letter">
+      <p>Happy birthday baby, hope you're happy for your 22th birthday, the most pretty and beautiful princess of mine. 👸</p>
+      <p>You deserve this birthday, my queen. 👑💖</p>
+      <p class="signature">Forever yours 💖</p>
+    </div>
+  </section>
+
+  <!-- REASONS -->
+  <section class="reveal">
+    <h2 class="section-title">A Few Reasons I Love You 🌸</h2>
+    <p class="section-sub">(the full list would crash the internet)</p>
+    <div class="reasons">
+      <div class="reason">
+        <span class="emoji">😊</span>
+        <h3>Your Smile</h3>
+        <p>It turns my worst days into my favorite ones, every single time.</p>
+      </div>
+      <div class="reason">
+        <span class="emoji">💜</span>
+        <h3>Your Heart</h3>
+        <p>You care for everyone around you so effortlessly and so deeply.</p>
+      </div>
+      <div class="reason">
+        <span class="emoji">😂</span>
+        <h3>Your Laugh</h3>
+        <p>Hands down my favorite sound in the entire universe.</p>
+      </div>
+      <div class="reason">
+        <span class="emoji">✨</span>
+        <h3>Your Magic</h3>
+        <p>You make ordinary moments feel like scenes from a movie.</p>
+      </div>
+      <div class="reason">
+        <span class="emoji">🤗</span>
+        <h3>Your Hugs</h3>
+        <p>Home isn't a place — it's wherever your arms are.</p>
+      </div>
+      <div class="reason">
+        <span class="emoji">🌙</span>
+        <h3>Just... You</h3>
+        <p>Exactly as you are. I wouldn't change a single thing.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section class="reveal">
+    <h2 class="section-title">Our Little Gallery 📸</h2>
+    <p class="section-sub">some of my favorite moments with you</p>
+    <div class="gallery">
+      <div class="polaroid">
+        <img src="images/photo1.jpg" alt="Her beautiful smile by the window" onerror="this.closest('.polaroid').classList.add('empty')">
+        <div class="placeholder">🌷<small>Add images/photo1.jpg</small></div>
+        <div class="caption">that smile I fell for 😍</div>
+      </div>
+      <div class="polaroid">
+        <img src="images/photo2.jpg" alt="Us being silly together" onerror="this.closest('.polaroid').classList.add('empty')">
+        <div class="placeholder">💌<small>Add images/photo2.jpg</small></div>
+        <div class="caption">us being us 😝💕</div>
+      </div>
+      <div class="polaroid">
+        <img src="images/photo3.jpg" alt="Our mirror selfie" onerror="this.closest('.polaroid').classList.add('empty')">
+        <div class="placeholder">🦋<small>Add images/photo3.jpg</small></div>
+        <div class="caption">my favorite person, always by my side 🪞</div>
+      </div>
+      <div class="polaroid">
+        <img src="images/photo4.jpg" alt="Her cutest pout" onerror="this.closest('.polaroid').classList.add('empty')">
+        <div class="placeholder">🌸<small>Add images/photo4.jpg</small></div>
+        <div class="caption">the cutest pout in the world 🥺</div>
+      </div>
+      <div class="polaroid">
+        <img src="images/photo5.jpg" alt="Her mirror selfie" onerror="this.closest('.polaroid').classList.add('empty')">
+        <div class="placeholder">💕<small>Add images/photo5.jpg</small></div>
+        <div class="caption">effortlessly gorgeous ✨</div>
+      </div>
+      <div class="polaroid empty">
+        <div class="placeholder">💞<small>a lifetime of memories still loading…</small></div>
+        <div class="caption">and many more to come…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WISH -->
+  <section class="wish reveal">
+    <div class="cake">🎂</div>
+    <h2>Make a Wish, Beautiful ✨</h2>
+    <p>Close your eyes, take a deep breath, and wish for something wonderful. (Spoiler: I already wished for you, and it came true.)</p>
+    <button class="btn" id="wishBtn">🕯️ Blow out the candles</button>
+  </section>
+</main>
+
+<footer>Made with 💖, 💜 and way too much love.</footer>
+
+<script>
+  // ---------- Floating hearts ----------
+  const heartsBg = document.getElementById('heartsBg');
+  const heartEmojis = ['💖', '💜', '🌸', '💗', '✨', '🩷', '💟'];
+  for (let i = 0; i < 22; i++) {
+    const h = document.createElement('span');
+    h.className = 'heart';
+    h.textContent = heartEmojis[i % heartEmojis.length];
+    h.style.left = Math.random() * 100 + 'vw';
+    h.style.fontSize = (0.9 + Math.random() * 1.6) + 'rem';
+    h.style.animationDuration = (9 + Math.random() * 12) + 's';
+    h.style.animationDelay = (Math.random() * 12) + 's';
+    heartsBg.appendChild(h);
+  }
+
+  // ---------- Confetti ----------
+  const confettiColors = ['#f65fa9', '#9b5de5', '#ff8fc7', '#6c2bd9', '#ffd3e8', '#ffdf6b'];
+  function burstConfetti(count = 120) {
+    for (let i = 0; i < count; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetti-piece';
+      const size = 6 + Math.random() * 8;
+      c.style.width = size + 'px';
+      c.style.height = size * (Math.random() > 0.5 ? 1 : 0.4) + 'px';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.background = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+      c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      c.style.animationDuration = (2.2 + Math.random() * 2.5) + 's';
+      c.style.animationDelay = (Math.random() * 0.6) + 's';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 5500);
+    }
+  }
+
+  document.getElementById('celebrateBtn').addEventListener('click', () => burstConfetti(140));
+  document.getElementById('wishBtn').addEventListener('click', (e) => {
+    burstConfetti(160);
+    e.target.textContent = '💫 Your wish is on its way!';
+    setTimeout(() => { e.target.textContent = '🕯️ Blow out the candles'; }, 3500);
+  });
+
+  // ---------- Reveal on scroll ----------
+  document.documentElement.classList.add('js');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+
+  // Little welcome confetti after load
+  window.addEventListener('load', () => setTimeout(() => burstConfetti(70), 600));
+</script>
+</body>
+</html>
