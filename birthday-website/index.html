@@ -262,6 +262,32 @@
     to { transform: translateY(115vh) rotate(720deg); opacity: 0.9; }
   }
 
+  /* ---------- Music toggle ---------- */
+  .music-btn {
+    position: fixed;
+    right: 1.1rem;
+    bottom: 1.1rem;
+    z-index: 60;
+    width: 3.4rem;
+    height: 3.4rem;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.4rem;
+    color: #fff;
+    background: linear-gradient(135deg, var(--pink-deep), var(--violet-deep));
+    box-shadow: 0 8px 22px rgba(108, 43, 217, 0.45);
+    transition: transform 0.2s ease;
+  }
+  .music-btn:hover { transform: scale(1.1); }
+  .music-btn.playing {
+    animation: pulse 1.3s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 8px 22px rgba(108, 43, 217, 0.45); }
+    50% { box-shadow: 0 8px 30px rgba(246, 95, 169, 0.8); transform: scale(1.07); }
+  }
+
   /* ---------- Reveal on scroll (hidden state only applies when JS is running) ---------- */
   .js .reveal {
     opacity: 0;
@@ -281,7 +307,7 @@
   <div class="hero">
     <div class="crown">👑</div>
     <h1>Happy Birthday,<br>My Love! 🎂</h1>
-    <p class="subtitle">Happy 22th to the most pretty and beautiful princess of mine — today the whole world celebrates you, my queen. 👑💕</p>
+    <p class="subtitle">Happy 22nd to the most pretty and beautiful princess of mine — today the whole world celebrates you, my queen. 👑💕</p>
     <button class="btn" id="celebrateBtn">🎉 Click for a surprise!</button>
     <div class="scroll-hint">⌄</div>
   </div>
@@ -291,7 +317,7 @@
     <h2 class="section-title">A Little Letter For You 💌</h2>
     <p class="section-sub">from my heart to yours</p>
     <div class="letter">
-      <p>Happy birthday baby, hope you're happy for your 22th birthday, the most pretty and beautiful princess of mine. 👸</p>
+      <p>Happy birthday baby, hope you're happy for your 22nd birthday, the most pretty and beautiful princess of mine. 👸</p>
       <p>You deserve this birthday, my queen. 👑💖</p>
       <p class="signature">Forever yours 💖</p>
     </div>
@@ -383,6 +409,8 @@
 
 <footer>Made with 💖, 💜 and way too much love.</footer>
 
+<button class="music-btn" id="musicBtn" title="Play the birthday song" aria-label="Toggle birthday music">🎵</button>
+
 <script>
   // ---------- Floating hearts ----------
   const heartsBg = document.getElementById('heartsBg');
@@ -417,12 +445,79 @@
     }
   }
 
-  document.getElementById('celebrateBtn').addEventListener('click', () => burstConfetti(140));
+  document.getElementById('celebrateBtn').addEventListener('click', () => {
+    burstConfetti(140);
+    startMusic();
+  });
   document.getElementById('wishBtn').addEventListener('click', (e) => {
     burstConfetti(160);
     e.target.textContent = '💫 Your wish is on its way!';
     setTimeout(() => { e.target.textContent = '🕯️ Blow out the candles'; }, 3500);
   });
+
+  // ---------- Happy Birthday music box (Web Audio, no file needed) ----------
+  const musicBtn = document.getElementById('musicBtn');
+  let audioCtx = null;
+  let musicOn = false;
+  let loopTimer = null;
+
+  // Note frequencies (key of F major)
+  const N = { C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00, A4: 440.00, Bb4: 466.16, C5: 523.25 };
+  // [frequency, beats] — the full Happy Birthday melody
+  const MELODY = [
+    [N.C4, 0.75], [N.C4, 0.25], [N.D4, 1], [N.C4, 1], [N.F4, 1], [N.E4, 2],
+    [N.C4, 0.75], [N.C4, 0.25], [N.D4, 1], [N.C4, 1], [N.G4, 1], [N.F4, 2],
+    [N.C4, 0.75], [N.C4, 0.25], [N.C5, 1], [N.A4, 1], [N.F4, 1], [N.E4, 1], [N.D4, 2],
+    [N.Bb4, 0.75], [N.Bb4, 0.25], [N.A4, 1], [N.F4, 1], [N.G4, 1], [N.F4, 2],
+  ];
+  const BEAT = 0.45; // seconds per beat
+
+  function playNote(freq, startTime, beats) {
+    const dur = beats * BEAT;
+    // Main tone + a soft octave overtone for a music-box sparkle
+    [[freq, 0.22], [freq * 2, 0.06]].forEach(([f, vol]) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = f;
+      gain.gain.setValueAtTime(0.0001, startTime);
+      gain.gain.exponentialRampToValueAtTime(vol, startTime + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001, startTime + dur * 0.95);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(startTime);
+      osc.stop(startTime + dur);
+    });
+  }
+
+  function scheduleMelody() {
+    let t = audioCtx.currentTime + 0.1;
+    for (const [freq, beats] of MELODY) {
+      playNote(freq, t, beats);
+      t += beats * BEAT;
+    }
+    const totalMs = (t - audioCtx.currentTime + 1.2) * 1000; // small pause, then loop
+    loopTimer = setTimeout(() => { if (musicOn) scheduleMelody(); }, totalMs);
+  }
+
+  function startMusic() {
+    if (musicOn) return;
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    musicOn = true;
+    musicBtn.classList.add('playing');
+    musicBtn.textContent = '🔊';
+    scheduleMelody();
+  }
+
+  function stopMusic() {
+    musicOn = false;
+    clearTimeout(loopTimer);
+    if (audioCtx) { audioCtx.close(); audioCtx = null; }
+    musicBtn.classList.remove('playing');
+    musicBtn.textContent = '🎵';
+  }
+
+  musicBtn.addEventListener('click', () => (musicOn ? stopMusic() : startMusic()));
 
   // ---------- Reveal on scroll ----------
   document.documentElement.classList.add('js');
