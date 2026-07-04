@@ -18,6 +18,8 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
+  html { scroll-behavior: smooth; }
+
   body {
     font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
     background: linear-gradient(160deg, #ffe3f1 0%, #f3e3ff 45%, #e6d9ff 100%);
@@ -260,6 +262,14 @@
     to { transform: translateY(115vh) rotate(720deg); opacity: 0.9; }
   }
 
+  /* ---------- Reveal on scroll ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
 </style>
 </head>
 <body>
@@ -277,7 +287,7 @@
   </div>
 
   <!-- LOVE LETTER -->
-  <section>
+  <section class="reveal">
     <h2 class="section-title">A Little Letter For You 💌</h2>
     <p class="section-sub">from my heart to yours</p>
     <div class="letter">
@@ -288,7 +298,7 @@
   </section>
 
   <!-- REASONS -->
-  <section>
+  <section class="reveal">
     <h2 class="section-title">A Few Reasons I Love You 🌸</h2>
     <p class="section-sub">(the full list would crash the internet)</p>
     <div class="reasons">
@@ -326,7 +336,7 @@
   </section>
 
   <!-- GALLERY -->
-  <section>
+  <section class="reveal">
     <h2 class="section-title">Our Little Gallery 📸</h2>
     <p class="section-sub">some of my favorite moments with you</p>
     <div class="gallery">
@@ -363,7 +373,7 @@
   </section>
 
   <!-- WISH -->
-  <section class="wish">
+  <section class="wish reveal">
     <div class="cake">🎂</div>
     <h2>Make a Wish, Beautiful ✨</h2>
     <p>Close your eyes, take a deep breath, and wish for something wonderful. (Spoiler: I already wished for you, and it came true.)</p>
@@ -413,6 +423,17 @@
     e.target.textContent = '💫 Your wish is on its way!';
     setTimeout(() => { e.target.textContent = '🕯️ Blow out the candles'; }, 3500);
   });
+
+  // ---------- Reveal on scroll ----------
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
 
   // Little welcome confetti after load
   window.addEventListener('load', () => setTimeout(() => burstConfetti(70), 600));
