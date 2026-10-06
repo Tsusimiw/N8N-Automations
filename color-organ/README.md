@@ -28,7 +28,9 @@ Each channel's brightness follows how loud that part of the sound is. A kick dru
 - **Spectrum**: 48 rainbow strips (log-spaced frequencies)
 - **Pulse**: a center glow, plus rings that shoot out on each beat
 
-Palettes: RGB, Sunset, Ocean, Neon. Sensitivity and smoothing sliders let you tune how it reacts.
+Palettes: RGB, Sunset, Ocean, Neon, and **Night** — deep indigo, moonlit blue and a warm point of
+starlight, kept dim on purpose so it works as ambient light in a dark room rather than lighting it up.
+Sensitivity and smoothing sliders let you tune how it reacts.
 Auto-gain adjusts to quiet and loud songs on its own.
 
 **Keys:** `F` fullscreen · `M` next mode · `Space` play/pause. The controls hide after a few seconds without mouse movement.
