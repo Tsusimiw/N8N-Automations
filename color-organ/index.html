@@ -4,6 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Color Organ</title>
+<meta name="description" content="Music-reactive background colors — a light show for whatever you're playing.">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Color Organ">
 <style>
   :root {
     --panel: rgba(12, 12, 16, 0.72);
@@ -112,6 +121,7 @@
       <button id="stopBtn" hidden>Stop</button>
     </div>
     <div class="row">
+      <button id="installBtn" hidden>⬇ Install app</button>
       <button id="fsBtn" title="Fullscreen (F)">⛶ Fullscreen</button>
     </div>
   </div>
@@ -228,10 +238,22 @@
     player.pause();
     player.classList.remove('show');
     stopBtn.hidden = true;
+    if (wakeLock) { wakeLock.release(); wakeLock = null; }
     statusEl.textContent = 'Stopped.';
   }
 
+  // Keep the screen on while the light show is running.
+  let wakeLock = null;
+  async function keepAwake() {
+    try { if ('wakeLock' in navigator && !wakeLock) wakeLock = await navigator.wakeLock.request('screen'); } catch (_) {}
+    if (wakeLock) wakeLock.addEventListener('release', () => { wakeLock = null; }, { once: true });
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && source) keepAwake();
+  });
+
   function setActive(msg) {
+    keepAwake();
     intro.classList.add('hidden');
     stopBtn.hidden = false;
     statusEl.textContent = msg;
@@ -416,6 +438,35 @@
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
+
+  // ----- Installable app -----
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+  const installBtn = $('installBtn');
+  let installPrompt = null;
+  addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    installPrompt = e;
+    installBtn.hidden = false;
+  });
+  installBtn.addEventListener('click', async () => {
+    if (installPrompt) {
+      installPrompt.prompt();
+      await installPrompt.userChoice;
+      installPrompt = null;
+      installBtn.hidden = true;
+    }
+  });
+  addEventListener('appinstalled', () => { installBtn.hidden = true; });
+  // iOS Safari has no install prompt; show a hint instead (only when not already installed).
+  const standalone = matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches || navigator.standalone;
+  if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !standalone) {
+    installBtn.hidden = false;
+    installBtn.addEventListener('click', () => {
+      statusEl.textContent = 'To install: tap the Share button, then “Add to Home Screen”.';
+    });
+  }
 })();
 </script>
 </body>
