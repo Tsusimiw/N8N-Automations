@@ -232,6 +232,8 @@
   // the dominant hues become the three channel colours. Nothing is recorded or sent:
   // the frames are read in this page and thrown away.
   const SAMPLE_W = 64, SAMPLE_H = 36, HUE_BINS = 24;
+  // Above this share of the frame's colour, one hue is treated as the whole artwork.
+  const DOMINANT = 0.6;
   let probeVideo = null, sampler = null, samplerCtx = null;
   let autoPal = null;      // colours most recently read off the artwork
   let autoPalShown = null; // eased towards autoPal so the room doesn't jump
@@ -258,6 +260,20 @@
     else if (h < 180) t = [0, c, x]; else if (h < 240) t = [0, x, c];
     else if (h < 300) t = [x, 0, c]; else t = [c, 0, x];
     return t.map(u => Math.round((u + m) * 255));
+  }
+
+  const clamp01 = x => Math.max(0, Math.min(1, x));
+
+  // Three stops through one hue, deep to bright, fanned a little either side so the
+  // channels stay tellable apart without leaving the album's own colour.
+  function monoRamp(h, s, v) {
+    const sat = Math.min(1, s * 1.15 + 0.12);
+    const at = d => (h + d + 360) % 360;
+    return [
+      hsv2rgb(at(-14), clamp01(sat + 0.10), clamp01(0.34 + v * 0.12)),
+      hsv2rgb(at(0),   clamp01(sat),        clamp01(0.60 + v * 0.14)),
+      hsv2rgb(at(14),  clamp01(sat * 0.62), clamp01(0.88 + v * 0.12)),
+    ];
   }
 
   function startVideoProbe(stream) {
@@ -313,7 +329,17 @@
       picked.push(c);
       if (picked.length === 3) break;
     }
-    while (picked.length < 3) picked.push(ranked[picked.length % ranked.length]);
+    const totalW = ranked.reduce((sum, c) => sum + c.w, 0);
+    const lead = picked[0];
+    const [lh, ls, lv] = rgb2hsv(lead.r / lead.w, lead.g / lead.w, lead.b / lead.w);
+
+    // Artwork that is essentially one colour — a dark, near-monochrome photo — leaves
+    // the other two bins holding slivers of noise, which came out as two arbitrary
+    // accents. A ramp through the leading hue reads as the album's own colour instead.
+    if (picked.length < 3 || lead.w / totalW > DOMINANT) {
+      autoPal = monoRamp(lh, ls, lv); // already ordered deep -> bright
+      return;
+    }
 
     const cols = picked.map(c => {
       const [h, s, v] = rgb2hsv(c.r / c.w, c.g / c.w, c.b / c.w);

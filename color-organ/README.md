@@ -41,6 +41,12 @@ chrome and the black letterbox bars — and takes the three strongest hues as th
 colours, darkest channel first. They ease in over roughly a second, so the room shifts with the album
 rather than flickering on every cut.
 
+Artwork that is essentially one colour — a dark, near-monochrome photo — would otherwise leave the
+second and third channels holding slivers of noise, giving one strong colour and two arbitrary
+accents. When a single hue carries more than 60% of a frame's colour, the three channels are instead
+taken as a deep-to-bright ramp through that hue, fanned 14° either side, so the room shows the
+album's own colour rather than two colours that are not really in it.
+
 Selecting **Album art** happens automatically when a tab share starts; pick any other palette to
 override it. The frames are read inside the page and discarded immediately: nothing is recorded,
 stored or sent anywhere.
