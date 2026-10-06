@@ -4,8 +4,19 @@ A music-reactive light show that runs in the browser. It's a single HTML file wi
 
 Open `index.html` in Chrome, Edge, Firefox or Safari, then:
 
+- **🖥 Use a tab (YouTube)**: reacts to the sound of another browser tab. Best option on a computer — no room noise, and it works with headphones on.
 - **🎤 Use microphone**: reacts to any music playing in the room (Spotify, a speaker, a live band).
 - **🎵 Load song**: plays an audio file from your device and reacts to it.
+
+### Reacting to YouTube
+
+Press **🖥 Use a tab (YouTube)**, choose the **Chrome Tab** tab in the picker, select your YouTube tab,
+and — this is the part that is easy to miss — switch on **Also share tab audio** at the bottom left before
+you click Share. Then press play on the video.
+
+Sharing a tab this way needs Chrome or Edge; Firefox and Safari do not offer tab audio, so use the
+microphone there instead. The captured sound is only analysed, never recorded or sent anywhere — the
+video half of the share is discarded the moment the picker closes.
 
 Like a classic color organ, the sound is split into three channels:
 **bass (20–250 Hz) → red**, **mids (250–2000 Hz) → green**, **treble (2–12 kHz) → blue**.

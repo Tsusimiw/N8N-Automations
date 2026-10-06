@@ -109,14 +109,15 @@
 <div class="intro" id="intro">
   <div>
     <h1>Color Organ</h1>
-    <p>Turn music into light. Use your microphone to react to whatever is playing in the room, or load a song file.</p>
+    <p>Turn music into light. React straight to a YouTube or Spotify tab, listen to the room through your microphone, or load a song file.</p>
   </div>
 </div>
 
 <div class="panel" id="panel">
   <div class="row split">
     <div class="row">
-      <button class="primary" id="micBtn">🎤 Use microphone</button>
+      <button class="primary" id="tabBtn">🖥 Use a tab (YouTube)</button>
+      <button id="micBtn">🎤 Use microphone</button>
       <label class="file">🎵 Load song<input type="file" id="fileInput" accept="audio/*"></label>
       <button id="stopBtn" hidden>Stop</button>
     </div>
@@ -148,7 +149,7 @@
   <div class="meters" aria-hidden="true">
     <span><i id="m0"></i></span><span><i id="m1"></i></span><span><i id="m2"></i></span>
   </div>
-  <div class="status" id="status">Press “Use microphone” and play some music. Keys: F fullscreen · M change mode · Space play/pause.</div>
+  <div class="status" id="status">Press “Use a tab” and pick your YouTube tab with sound shared. Keys: F fullscreen · M change mode · Space play/pause.</div>
 </div>
 
 <script>
@@ -156,7 +157,7 @@
   const canvas = document.getElementById('stage');
   const ctx = canvas.getContext('2d');
   const $ = id => document.getElementById(id);
-  const micBtn = $('micBtn'), fileInput = $('fileInput'), stopBtn = $('stopBtn'), fsBtn = $('fsBtn');
+  const micBtn = $('micBtn'), tabBtn = $('tabBtn'), fileInput = $('fileInput'), stopBtn = $('stopBtn'), fsBtn = $('fsBtn');
   const player = $('player'), modeSel = $('modeSel'), paletteSel = $('paletteSel');
   const gainEl = $('gain'), smoothEl = $('smooth'), statusEl = $('status'), intro = $('intro');
   const meters = [$('m0'), $('m1'), $('m2')];
@@ -220,6 +221,45 @@
     }
   }
 
+  // Capture the sound of another browser tab (YouTube, Spotify web, anything playing).
+  // Cleaner than the microphone: no room noise, and it works with headphones on.
+  async function startTabAudio() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+      statusEl.textContent = 'This browser cannot capture tab audio. Use the microphone instead.';
+      return;
+    }
+    ensureContext();
+    let stream;
+    try {
+      // A video track has to be requested for the picker to offer a tab at all;
+      // it is thrown away below so only the sound is kept.
+      stream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+      });
+    } catch (err) {
+      statusEl.textContent = err.name === 'NotAllowedError'
+        ? 'Tab sharing was cancelled.'
+        : 'Could not capture tab audio: ' + err.message;
+      return;
+    }
+    stream.getVideoTracks().forEach(t => t.stop());
+    const audioTracks = stream.getAudioTracks();
+    if (!audioTracks.length) {
+      stream.getTracks().forEach(t => t.stop());
+      statusEl.textContent = 'That share had no sound. Pick the tab again and turn on “Also share tab audio”.';
+      return;
+    }
+    disconnectSource();
+    player.pause();
+    player.classList.remove('show');
+    micStream = stream;
+    source = audioCtx.createMediaStreamSource(stream);
+    source.connect(analyser); // the tab plays its own sound, so don't echo it to the speakers
+    audioTracks[0].addEventListener('ended', stopAll); // viewer pressed "Stop sharing"
+    setActive('Reacting to the shared tab — press play on your video.');
+  }
+
   function startFile(file) {
     ensureContext();
     disconnectSource();
@@ -260,6 +300,7 @@
   }
 
   micBtn.addEventListener('click', startMic);
+  tabBtn.addEventListener('click', startTabAudio);
   fileInput.addEventListener('change', e => { const f = e.target.files[0]; if (f) startFile(f); });
   stopBtn.addEventListener('click', stopAll);
   fsBtn.addEventListener('click', toggleFullscreen);
