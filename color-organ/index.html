@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Color Organ</title>
+<meta name="description" content="Music-reactive background colors — a light show for whatever you're playing.">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Color Organ">
+<style>
+  :root {
+    --panel: rgba(12, 12, 16, 0.72);
+    --text: #f4f4f6;
+    --muted: #a8a8b3;
+    --accent: #ffffff;
+    --border: rgba(255, 255, 255, 0.14);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #000;
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    overflow: hidden;
+  }
+  canvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    display: block;
+  }
+  body.idle { cursor: none; }
+
+  .panel {
+    position: fixed;
+    left: 50%;
+    bottom: max(16px, env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    width: min(720px, calc(100vw - 32px));
+    background: var(--panel);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: opacity .4s ease, transform .4s ease;
+  }
+  body.idle .panel { opacity: 0; transform: translateX(-50%) translateY(12px); pointer-events: none; }
+
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .row.split { justify-content: space-between; }
+
+  button, select, label.file {
+    font: inherit;
+    font-size: 14px;
+    color: var(--text);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+  button:hover, select:hover, label.file:hover { background: rgba(255,255,255,0.16); }
+  button.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+  button.primary:hover { background: #e6e6e6; }
+  button[aria-pressed="true"] { background: rgba(255,255,255,0.28); }
+  select option { background: #18181c; }
+  label.file input { display: none; }
+
+  .slider { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+  .slider input { width: 110px; accent-color: #fff; }
+
+  .status { font-size: 13px; color: var(--muted); min-height: 1em; }
+  audio { width: 100%; height: 36px; display: none; }
+  audio.show { display: block; }
+
+  .meters { display: flex; gap: 6px; height: 6px; }
+  .meters span { flex: 1; border-radius: 3px; background: rgba(255,255,255,0.1); overflow: hidden; position: relative; }
+  .meters span i { position: absolute; inset: 0; transform-origin: left; transform: scaleX(0); }
+
+  .intro {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 24px;
+    pointer-events: none;
+  }
+  .intro h1 { font-size: clamp(32px, 7vw, 64px); margin: 0 0 8px; letter-spacing: -0.02em; }
+  .intro p { color: var(--muted); margin: 0; max-width: 32em; }
+  .intro.hidden { display: none; }
+</style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+
+<div class="intro" id="intro">
+  <div>
+    <h1>Color Organ</h1>
+    <p>Turn music into light. Use your microphone to react to whatever is playing in the room, or load a song file.</p>
+  </div>
+</div>
+
+<div class="panel" id="panel">
+  <div class="row split">
+    <div class="row">
+      <button class="primary" id="micBtn">🎤 Use microphone</button>
+      <label class="file">🎵 Load song<input type="file" id="fileInput" accept="audio/*"></label>
+      <button id="stopBtn" hidden>Stop</button>
+    </div>
+    <div class="row">
+      <button id="installBtn" hidden>⬇ Install app</button>
+      <button id="fsBtn" title="Fullscreen (F)">⛶ Fullscreen</button>
+    </div>
+  </div>
+
+  <audio id="player" controls></audio>
+
+  <div class="row">
+    <select id="modeSel" title="Visual mode (M)">
+      <option value="blend">Blend — whole screen mixes R/G/B</option>
+      <option value="bands">Classic — 3 light bars</option>
+      <option value="spectrum">Spectrum — rainbow strips</option>
+      <option value="pulse">Pulse — rings from the center</option>
+    </select>
+    <select id="paletteSel" title="Palette">
+      <option value="rgb">Bass red · Mid green · Treble blue</option>
+      <option value="sunset">Sunset</option>
+      <option value="ocean">Ocean</option>
+      <option value="neon">Neon</option>
+    </select>
+    <div class="slider">Sensitivity <input type="range" id="gain" min="0.3" max="3" step="0.05" value="1.2"></div>
+    <div class="slider">Smoothing <input type="range" id="smooth" min="0" max="0.95" step="0.01" value="0.75"></div>
+  </div>
+
+  <div class="meters" aria-hidden="true">
+    <span><i id="m0"></i></span><span><i id="m1"></i></span><span><i id="m2"></i></span>
+  </div>
+  <div class="status" id="status">Press “Use microphone” and play some music. Keys: F fullscreen · M change mode · Space play/pause.</div>
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('stage');
+  const ctx = canvas.getContext('2d');
+  const $ = id => document.getElementById(id);
+  const micBtn = $('micBtn'), fileInput = $('fileInput'), stopBtn = $('stopBtn'), fsBtn = $('fsBtn');
+  const player = $('player'), modeSel = $('modeSel'), paletteSel = $('paletteSel');
+  const gainEl = $('gain'), smoothEl = $('smooth'), statusEl = $('status'), intro = $('intro');
+  const meters = [$('m0'), $('m1'), $('m2')];
+
+  // Each palette defines the colour for the bass / mid / treble channel.
+  const PALETTES = {
+    rgb:    [[255, 30, 40],  [40, 255, 80],  [40, 90, 255]],
+    sunset: [[255, 60, 20],  [255, 170, 0],  [220, 40, 160]],
+    ocean:  [[0, 80, 200],   [0, 220, 200],  [180, 255, 255]],
+    neon:   [[255, 0, 200],  [0, 255, 160],  [255, 240, 0]],
+  };
+  // Frequency ranges (Hz) for the three classic colour-organ channels.
+  const BANDS = [[20, 250], [250, 2000], [2000, 12000]];
+
+  let audioCtx = null, analyser = null, source = null, micStream = null, mediaSource = null;
+  let freqData = null;
+  const level = [0, 0, 0];       // smoothed 0..1 per channel
+  const peak = [0.05, 0.05, 0.05]; // slowly decaying peaks for auto-gain
+  let bassAvg = 0, flash = 0, rings = [];
+  let dpr = 1;
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.floor(innerWidth * dpr);
+    canvas.height = Math.floor(innerHeight * dpr);
+  }
+  addEventListener('resize', resize);
+  resize();
+
+  function ensureContext() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 2048;
+      freqData = new Uint8Array(analyser.frequencyBinCount);
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  }
+
+  function disconnectSource() {
+    if (source) { try { source.disconnect(); } catch (_) {} source = null; }
+    if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+    try { analyser && analyser.disconnect(); } catch (_) {}
+  }
+
+  async function startMic() {
+    ensureContext();
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+      });
+      disconnectSource();
+      player.pause();
+      player.classList.remove('show');
+      micStream = stream;
+      source = audioCtx.createMediaStreamSource(stream);
+      source.connect(analyser); // not routed to speakers (avoids feedback)
+      setActive('Listening through the microphone — play some music!');
+    } catch (err) {
+      statusEl.textContent = 'Microphone access was blocked or unavailable: ' + err.message;
+    }
+  }
+
+  function startFile(file) {
+    ensureContext();
+    disconnectSource();
+    player.src = URL.createObjectURL(file);
+    player.classList.add('show');
+    if (!mediaSource) mediaSource = audioCtx.createMediaElementSource(player);
+    source = mediaSource;
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination); // file audio should be audible
+    player.play();
+    setActive('Playing “' + file.name + '”');
+  }
+
+  function stopAll() {
+    disconnectSource();
+    player.pause();
+    player.classList.remove('show');
+    stopBtn.hidden = true;
+    if (wakeLock) { wakeLock.release(); wakeLock = null; }
+    statusEl.textContent = 'Stopped.';
+  }
+
+  // Keep the screen on while the light show is running.
+  let wakeLock = null;
+  async function keepAwake() {
+    try { if ('wakeLock' in navigator && !wakeLock) wakeLock = await navigator.wakeLock.request('screen'); } catch (_) {}
+    if (wakeLock) wakeLock.addEventListener('release', () => { wakeLock = null; }, { once: true });
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && source) keepAwake();
+  });
+
+  function setActive(msg) {
+    keepAwake();
+    intro.classList.add('hidden');
+    stopBtn.hidden = false;
+    statusEl.textContent = msg;
+  }
+
+  micBtn.addEventListener('click', startMic);
+  fileInput.addEventListener('change', e => { const f = e.target.files[0]; if (f) startFile(f); });
+  stopBtn.addEventListener('click', stopAll);
+  fsBtn.addEventListener('click', toggleFullscreen);
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+    else document.exitFullscreen?.();
+  }
+
+  addEventListener('keydown', e => {
+    if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+    if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+    if (e.key === 'm' || e.key === 'M') {
+      modeSel.selectedIndex = (modeSel.selectedIndex + 1) % modeSel.options.length;
+    }
+    if (e.key === ' ' && player.src) { e.preventDefault(); player.paused ? player.play() : player.pause(); }
+    wake();
+  });
+
+  // Auto-hide the controls after a few seconds of no mouse movement.
+  let idleTimer;
+  function wake() {
+    document.body.classList.remove('idle');
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => { if (source) document.body.classList.add('idle'); }, 3500);
+  }
+  ['mousemove', 'touchstart', 'pointerdown'].forEach(ev => addEventListener(ev, wake, { passive: true }));
+
+  // ----- Analysis -----
+  function bandEnergy(lo, hi) {
+    const nyquist = audioCtx.sampleRate / 2;
+    const n = freqData.length;
+    const a = Math.max(1, Math.floor(lo / nyquist * n));
+    const b = Math.min(n - 1, Math.ceil(hi / nyquist * n));
+    let sum = 0;
+    for (let i = a; i <= b; i++) sum += freqData[i];
+    return sum / ((b - a + 1) * 255);
+  }
+
+  function analyse() {
+    analyser.getByteFrequencyData(freqData);
+    const sens = parseFloat(gainEl.value);
+    const smooth = parseFloat(smoothEl.value);
+    for (let i = 0; i < 3; i++) {
+      const raw = bandEnergy(BANDS[i][0], BANDS[i][1]);
+      // Auto-gain: normalise against a slowly-decaying peak so quiet and loud songs both work.
+      peak[i] = Math.max(raw, peak[i] * 0.995, 0.04);
+      let v = Math.pow(raw / peak[i], 2.2) * sens; // gamma makes lights "snap" more
+      v = Math.min(1, v);
+      level[i] = level[i] * smooth + v * (1 - smooth);
+    }
+    // Simple beat detection on the bass channel.
+    const bassRaw = bandEnergy(20, 150);
+    bassAvg = bassAvg * 0.95 + bassRaw * 0.05;
+    if (bassRaw > bassAvg * 1.35 && bassRaw > 0.25 && flash < 0.3) {
+      flash = 1;
+      rings.push({ r: 0, life: 1 });
+    }
+    flash *= 0.88;
+  }
+
+  // ----- Rendering -----
+  const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+
+  function drawBlend(W, H, pal) {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'lighter';
+    // Each channel is a soft glow from a different part of the screen; they mix additively.
+    const spots = [[0.2, 0.75], [0.5, 0.3], [0.8, 0.75]];
+    for (let i = 0; i < 3; i++) {
+      const [sx, sy] = spots[i];
+      const g = ctx.createRadialGradient(sx * W, sy * H, 0, sx * W, sy * H, Math.max(W, H) * (0.5 + level[i] * 0.6));
+      g.addColorStop(0, rgba(pal[i], level[i]));
+      g.addColorStop(1, rgba(pal[i], 0));
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+    }
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
+  function drawBands(W, H, pal) {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, W, H);
+    const w = W / 3;
+    for (let i = 0; i < 3; i++) {
+      const g = ctx.createLinearGradient(0, H, 0, 0);
+      g.addColorStop(0, rgba(pal[i], level[i]));
+      g.addColorStop(1, rgba(pal[i], level[i] * 0.35));
+      ctx.fillStyle = g;
+      ctx.fillRect(i * w, 0, w + 1, H);
+    }
+  }
+
+  function drawSpectrum(W, H) {
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.fillRect(0, 0, W, H);
+    const strips = 48;
+    const nyquist = audioCtx.sampleRate / 2;
+    const sens = parseFloat(gainEl.value);
+    for (let s = 0; s < strips; s++) {
+      // Logarithmic frequency spacing so bass isn't squashed into one strip.
+      const lo = 30 * Math.pow(16000 / 30, s / strips);
+      const hi = 30 * Math.pow(16000 / 30, (s + 1) / strips);
+      const v = Math.min(1, Math.pow(bandEnergy(lo, Math.min(hi, nyquist)), 1.6) * sens * 1.6);
+      const hue = (s / strips) * 300;
+      ctx.fillStyle = `hsla(${hue}, 100%, ${20 + v * 45}%, ${0.15 + v * 0.85})`;
+      const x = (s / strips) * W;
+      ctx.fillRect(x, H * (1 - v), W / strips + 1, H * v);
+      ctx.fillStyle = `hsla(${hue}, 100%, 50%, ${v * 0.25})`;
+      ctx.fillRect(x, 0, W / strips + 1, H * (1 - v));
+    }
+  }
+
+  function drawPulse(W, H, pal) {
+    // Background tint is the weighted mix of the three channels.
+    const mix = [0, 0, 0];
+    for (let i = 0; i < 3; i++) for (let k = 0; k < 3; k++) mix[k] += pal[i][k] * level[i];
+    const m = mix.map(v => Math.min(255, v * 0.6));
+    ctx.fillStyle = `rgb(${m[0] | 0},${m[1] | 0},${m[2] | 0})`;
+    ctx.fillRect(0, 0, W, H);
+    const cx = W / 2, cy = H / 2, maxR = Math.hypot(W, H) / 2;
+    ctx.lineWidth = 6 * dpr;
+    rings = rings.filter(r => r.life > 0.02);
+    for (const r of rings) {
+      r.r += maxR * 0.025;
+      r.life *= 0.95;
+      ctx.strokeStyle = `rgba(255,255,255,${r.life})`;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r.r, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    for (let i = 2; i >= 0; i--) {
+      const rad = maxR * (0.1 + level[i] * 0.35) * (1 + (2 - i) * 0.35);
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, rad);
+      g.addColorStop(0, rgba(pal[i], 0.9 * level[i]));
+      g.addColorStop(1, rgba(pal[i], 0));
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+    }
+  }
+
+  function drawIdle(W, H, t) {
+    // Gentle colour drift while nothing is playing.
+    const hue = (t / 80) % 360;
+    const g = ctx.createLinearGradient(0, 0, W, H);
+    g.addColorStop(0, `hsl(${hue}, 60%, 12%)`);
+    g.addColorStop(1, `hsl(${(hue + 120) % 360}, 60%, 8%)`);
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  function frame(t) {
+    const W = canvas.width, H = canvas.height;
+    const pal = PALETTES[paletteSel.value];
+    if (!source) {
+      drawIdle(W, H, t);
+      meters.forEach(m => m.style.transform = 'scaleX(0)');
+    } else {
+      analyse();
+      switch (modeSel.value) {
+        case 'bands': drawBands(W, H, pal); break;
+        case 'spectrum': drawSpectrum(W, H); break;
+        case 'pulse': drawPulse(W, H, pal); break;
+        default: drawBlend(W, H, pal);
+      }
+      if (flash > 0.02 && modeSel.value !== 'pulse') {
+        ctx.fillStyle = `rgba(255,255,255,${flash * 0.18})`;
+        ctx.fillRect(0, 0, W, H);
+      }
+      meters.forEach((m, i) => {
+        m.style.transform = `scaleX(${level[i]})`;
+        m.style.background = rgba(pal[i], 1);
+      });
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // ----- Installable app -----
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+  const installBtn = $('installBtn');
+  let installPrompt = null;
+  addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    installPrompt = e;
+    installBtn.hidden = false;
+  });
+  installBtn.addEventListener('click', async () => {
+    if (installPrompt) {
+      installPrompt.prompt();
+      await installPrompt.userChoice;
+      installPrompt = null;
+      installBtn.hidden = true;
+    }
+  });
+  addEventListener('appinstalled', () => { installBtn.hidden = true; });
+  // iOS Safari has no install prompt; show a hint instead (only when not already installed).
+  const standalone = matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches || navigator.standalone;
+  if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !standalone) {
+    installBtn.hidden = false;
+    installBtn.addEventListener('click', () => {
+      statusEl.textContent = 'To install: tap the Share button, then “Add to Home Screen”.';
+    });
+  }
+})();
+</script>
+</body>
+</html>
