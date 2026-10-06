@@ -142,6 +142,7 @@
       <option value="ocean">Ocean</option>
       <option value="neon">Neon</option>
       <option value="night">Night</option>
+      <option value="auto">Album art — from the shared tab</option>
     </select>
     <div class="slider">Sensitivity <input type="range" id="gain" min="0.3" max="3" step="0.05" value="1.2"></div>
     <div class="slider">Smoothing <input type="range" id="smooth" min="0" max="0.95" step="0.01" value="0.75"></div>
@@ -204,6 +205,7 @@
   function disconnectSource() {
     if (source) { try { source.disconnect(); } catch (_) {} source = null; }
     if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+    stopVideoProbe();
     try { analyser && analyser.disconnect(); } catch (_) {}
   }
 
@@ -223,6 +225,114 @@
     } catch (err) {
       statusEl.textContent = 'Microphone access was blocked or unavailable: ' + err.message;
     }
+  }
+
+  // ----- Album artwork -> palette -----
+  // The shared tab's video track is sampled to a tiny canvas every second or so and
+  // the dominant hues become the three channel colours. Nothing is recorded or sent:
+  // the frames are read in this page and thrown away.
+  const SAMPLE_W = 64, SAMPLE_H = 36, HUE_BINS = 24;
+  let probeVideo = null, sampler = null, samplerCtx = null;
+  let autoPal = null;      // colours most recently read off the artwork
+  let autoPalShown = null; // eased towards autoPal so the room doesn't jump
+  let lastSample = -1e9;
+
+  function rgb2hsv(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+    let h = 0;
+    if (d) {
+      if (mx === r) h = ((g - b) / d) % 6;
+      else if (mx === g) h = (b - r) / d + 2;
+      else h = (r - g) / d + 4;
+      h *= 60;
+      if (h < 0) h += 360;
+    }
+    return [h, mx ? d / mx : 0, mx];
+  }
+
+  function hsv2rgb(h, s, v) {
+    const c = v * s, x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = v - c;
+    let t;
+    if (h < 60) t = [c, x, 0]; else if (h < 120) t = [x, c, 0];
+    else if (h < 180) t = [0, c, x]; else if (h < 240) t = [0, x, c];
+    else if (h < 300) t = [x, 0, c]; else t = [c, 0, x];
+    return t.map(u => Math.round((u + m) * 255));
+  }
+
+  function startVideoProbe(stream) {
+    const tracks = stream.getVideoTracks();
+    if (!tracks.length) return false;
+    probeVideo = document.createElement('video');
+    probeVideo.muted = true;
+    probeVideo.playsInline = true;
+    probeVideo.srcObject = new MediaStream([tracks[0]]);
+    probeVideo.play().catch(() => {});
+    if (!sampler) {
+      sampler = document.createElement('canvas');
+      sampler.width = SAMPLE_W;
+      sampler.height = SAMPLE_H;
+      samplerCtx = sampler.getContext('2d', { willReadFrequently: true });
+    }
+    return true;
+  }
+
+  function stopVideoProbe() {
+    if (probeVideo) { probeVideo.srcObject = null; probeVideo = null; }
+    autoPal = null;
+    autoPalShown = null;
+  }
+
+  function sampleArtwork() {
+    if (!probeVideo || probeVideo.readyState < 2) return;
+    samplerCtx.drawImage(probeVideo, 0, 0, SAMPLE_W, SAMPLE_H);
+    let data;
+    try { data = samplerCtx.getImageData(0, 0, SAMPLE_W, SAMPLE_H).data; }
+    catch (_) { return; }
+
+    const bins = Array.from({ length: HUE_BINS }, () => ({ w: 0, r: 0, g: 0, b: 0 }));
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i], g = data[i + 1], b = data[i + 2];
+      const [h, s, v] = rgb2hsv(r, g, b);
+      // Skip the player's grey chrome, the black letterbox bars and washed-out whites.
+      // The saturation floor already excludes near-white pixels, so value is only
+      // checked from below: a pure hue sits at v === 1 and has to be kept.
+      if (s < 0.22 || v < 0.18) continue;
+      const k = Math.min(HUE_BINS - 1, Math.floor(h / 360 * HUE_BINS));
+      const w = s * v; // vivid pixels should count for more than washed-out ones
+      bins[k].w += w; bins[k].r += r * w; bins[k].g += g * w; bins[k].b += b * w;
+    }
+
+    const ranked = bins.map((x, k) => ({ k, ...x })).filter(x => x.w > 0).sort((a, b) => b.w - a.w);
+    if (!ranked.length) return; // a near-monochrome frame: keep the previous colours
+
+    const picked = [];
+    for (const c of ranked) {
+      const apart = p => Math.min(Math.abs(p.k - c.k), HUE_BINS - Math.abs(p.k - c.k));
+      if (picked.some(p => apart(p) < 2)) continue; // want three visibly different hues
+      picked.push(c);
+      if (picked.length === 3) break;
+    }
+    while (picked.length < 3) picked.push(ranked[picked.length % ranked.length]);
+
+    const cols = picked.map(c => {
+      const [h, s, v] = rgb2hsv(c.r / c.w, c.g / c.w, c.b / c.w);
+      // Artwork is rarely bright enough to drive a light show, so lift it.
+      return hsv2rgb(h, Math.min(1, s * 1.25 + 0.15), Math.min(1, v * 0.6 + 0.45));
+    });
+    cols.sort((a, b) => (a[0] + a[1] + a[2]) - (b[0] + b[1] + b[2]));
+    autoPal = cols; // darkest colour drives the bass, brightest the treble
+  }
+
+  function currentPalette(t) {
+    if (paletteSel.value !== 'auto') return PALETTES[paletteSel.value];
+    if (t - lastSample > 1200) { lastSample = t; sampleArtwork(); }
+    if (!autoPal) return PALETTES.rgb; // nothing shared yet, or no colour found
+    if (!autoPalShown) autoPalShown = autoPal.map(c => c.slice());
+    for (let i = 0; i < 3; i++) {
+      for (let k = 0; k < 3; k++) autoPalShown[i][k] += (autoPal[i][k] - autoPalShown[i][k]) * 0.04;
+    }
+    return autoPalShown;
   }
 
   // Capture the sound of another browser tab (YouTube, Spotify web, anything playing).
@@ -247,7 +357,6 @@
         : 'Could not capture tab audio: ' + err.message;
       return;
     }
-    stream.getVideoTracks().forEach(t => t.stop());
     const audioTracks = stream.getAudioTracks();
     if (!audioTracks.length) {
       stream.getTracks().forEach(t => t.stop());
@@ -261,7 +370,12 @@
     source = audioCtx.createMediaStreamSource(stream);
     source.connect(analyser); // the tab plays its own sound, so don't echo it to the speakers
     audioTracks[0].addEventListener('ended', stopAll); // viewer pressed "Stop sharing"
-    setActive('Reacting to the shared tab — press play on your video.');
+    // The picture is kept only to read colours out of the artwork on screen.
+    const gotPicture = startVideoProbe(stream);
+    if (gotPicture) paletteSel.value = 'auto';
+    setActive(gotPicture
+      ? 'Reacting to the shared tab, colours taken from the artwork — press play on your video.'
+      : 'Reacting to the shared tab — press play on your video.');
   }
 
   function startFile(file) {
@@ -459,7 +573,7 @@
 
   function frame(t) {
     const W = canvas.width, H = canvas.height;
-    const pal = PALETTES[paletteSel.value];
+    const pal = currentPalette(t);
     if (!source) {
       drawIdle(W, H, t);
       meters.forEach(m => m.style.transform = 'scaleX(0)');

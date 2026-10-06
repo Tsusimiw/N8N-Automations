@@ -28,9 +28,22 @@ Each channel's brightness follows how loud that part of the sound is. A kick dru
 - **Spectrum**: 48 rainbow strips (log-spaced frequencies)
 - **Pulse**: a center glow, plus rings that shoot out on each beat
 
-Palettes: RGB, Sunset, Ocean, Neon, and **Night** — deep indigo, moonlit blue and a warm point of
-starlight, kept dim on purpose so it works as ambient light in a dark room rather than lighting it up.
+Palettes: RGB, Sunset, Ocean, Neon, **Night** — deep indigo, moonlit blue and a warm point of
+starlight, kept dim on purpose so it works as ambient light in a dark room rather than lighting it up —
+and **Album art**, which takes its colours from whatever is on screen in the shared tab.
 Sensitivity and smoothing sliders let you tune how it reacts.
+
+### Album art colours
+
+When you share a tab, the browser hands over its picture as well as its sound. Color Organ samples that
+picture to a 64×36 canvas about once a second, bins the pixels by hue — ignoring the player's grey
+chrome and the black letterbox bars — and takes the three strongest hues as the bass, mid and treble
+colours, darkest channel first. They ease in over roughly a second, so the room shifts with the album
+rather than flickering on every cut.
+
+Selecting **Album art** happens automatically when a tab share starts; pick any other palette to
+override it. The frames are read inside the page and discarded immediately: nothing is recorded,
+stored or sent anywhere.
 Auto-gain adjusts to quiet and loud songs on its own.
 
 **Keys:** `F` fullscreen · `M` next mode · `Space` play/pause. The controls hide after a few seconds without mouse movement.
